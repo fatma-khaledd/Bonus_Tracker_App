@@ -1,28 +1,37 @@
-import 'package:bonus_tracker_app/screens/login_screen.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
+import 'core/theme/theme.dart';
+import 'screens/login_screen.dart';
 
 void main() {
   runApp(
-   DevicePreview(enabled: true, builder: (context) => MyApp()));
+    DevicePreview(
+      enabled: true,
+      builder: (context) => const MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatefulWidget {
+/// Root application widget configuring global themes and preview settings.
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Mohsens Tracker',
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+
+      // App Theme Configuration
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.light,
+
+      // DevicePreview Support
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
+
+      home: const LoginScreen(),
     );
   }
 }
-
-
-
