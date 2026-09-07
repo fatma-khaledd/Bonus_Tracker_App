@@ -1,29 +1,63 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:bonus_tracker_app/screens/login_screen.dart';
+import 'package:bonus_tracker_app/core/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const LoginScreen());
+  group('AppButton Widget Tests', () {
+    testWidgets('renders button text and triggers onPressed on tap',
+        (WidgetTester tester) async {
+      bool tapped = false;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AppButton.primary(
+              text: 'Click Me',
+              onPressed: () => tapped = true,
+            ),
+          ),
+        ),
+      );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      expect(find.text('Click Me'), findsOneWidget);
+      await tester.tap(find.text('Click Me'));
+      await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(tapped, isTrue);
+    });
+
+    testWidgets('shows CircularProgressIndicator when isLoading is true',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AppButton.primary(
+              text: 'Loading...',
+              isLoading: true,
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Loading...'), findsNothing);
+    });
+
+    testWidgets('renders outlined button correctly',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AppButton.outlined(
+              text: 'Outlined Button',
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Outlined Button'), findsOneWidget);
+    });
   });
 }
