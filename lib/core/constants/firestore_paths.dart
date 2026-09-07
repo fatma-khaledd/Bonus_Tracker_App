@@ -1,7 +1,4 @@
 /// Defines centralized paths for all Firestore collections and documents.
-///
-/// Ensures consistent collection/subcollection references across the app
-/// and eliminates hardcoded path strings.
 class FirestorePaths {
   const FirestorePaths._();
 
@@ -43,17 +40,12 @@ class FirestorePaths {
     String committeeId,
     String uid,
     String sessionId,
-  ) =>
-      'committees/$committeeId/members/$uid/sessionRecords/$sessionId';
+  ) => 'committees/$committeeId/members/$uid/sessionRecords/$sessionId';
 
   // 8. Monthly Stats (Subcollection under member)
   static String monthlyStats(String committeeId, String uid) =>
       'committees/$committeeId/members/$uid/monthlyStats';
-  static String monthlyStat(
-    String committeeId,
-    String uid,
-    String monthKey,
-  ) =>
+  static String monthlyStat(String committeeId, String uid, String monthKey) =>
       'committees/$committeeId/members/$uid/monthlyStats/$monthKey';
 
   // 9. Notes (Root collection)
