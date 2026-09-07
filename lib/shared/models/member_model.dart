@@ -168,6 +168,7 @@ class MemberModel {
   final MemberStats stats;
   final MemberTraits traits;
   final String? committeeId;
+  final DateTime? lastSeenNotificationsAt;
 
   const MemberModel({
     required this.userId,
@@ -178,6 +179,7 @@ class MemberModel {
     required this.stats,
     this.traits = const MemberTraits(),
     this.committeeId,
+    this.lastSeenNotificationsAt,
   });
 
   factory MemberModel.fromMap(
@@ -194,6 +196,9 @@ class MemberModel {
       stats: MemberStats.fromMap(map['stats'] as Map<String, dynamic>?),
       traits: MemberTraits.fromMap(map['traits'] as Map<String, dynamic>?),
       committeeId: committeeId ?? map['committeeId'] as String?,
+      lastSeenNotificationsAt: map['lastSeenNotificationsAt'] != null
+          ? DateTimeHelper.parseOrNow(map['lastSeenNotificationsAt'])
+          : null,
     );
   }
 
@@ -207,6 +212,8 @@ class MemberModel {
       'stats': stats.toMap(),
       'traits': traits.toMap(),
       if (committeeId != null) 'committeeId': committeeId,
+      if (lastSeenNotificationsAt != null)
+        'lastSeenNotificationsAt': lastSeenNotificationsAt,
     };
   }
 
@@ -219,6 +226,7 @@ class MemberModel {
     MemberStats? stats,
     MemberTraits? traits,
     String? committeeId,
+    DateTime? lastSeenNotificationsAt,
   }) {
     return MemberModel(
       userId: userId ?? this.userId,
@@ -229,6 +237,8 @@ class MemberModel {
       stats: stats ?? this.stats,
       traits: traits ?? this.traits,
       committeeId: committeeId ?? this.committeeId,
+      lastSeenNotificationsAt:
+          lastSeenNotificationsAt ?? this.lastSeenNotificationsAt,
     );
   }
 
@@ -244,7 +254,8 @@ class MemberModel {
           isActive == other.isActive &&
           stats == other.stats &&
           traits == other.traits &&
-          committeeId == other.committeeId;
+          committeeId == other.committeeId &&
+          lastSeenNotificationsAt == other.lastSeenNotificationsAt;
 
   @override
   int get hashCode =>
@@ -255,9 +266,10 @@ class MemberModel {
       isActive.hashCode ^
       stats.hashCode ^
       traits.hashCode ^
-      committeeId.hashCode;
+      committeeId.hashCode ^
+      lastSeenNotificationsAt.hashCode;
 
   @override
   String toString() =>
-      'MemberModel(userId: $userId, displayName: $displayName, role: ${role.value}, joinedAt: $joinedAt, isActive: $isActive, stats: $stats, traits: $traits, committeeId: $committeeId)';
+      'MemberModel(userId: $userId, displayName: $displayName, role: ${role.value}, joinedAt: $joinedAt, isActive: $isActive, stats: $stats, traits: $traits, committeeId: $committeeId, lastSeenNotificationsAt: $lastSeenNotificationsAt)';
 }

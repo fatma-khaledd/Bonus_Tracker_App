@@ -82,6 +82,7 @@ void main() {
           'goodAttitude': 5,
           'badAttitude': 0,
         },
+        'lastSeenNotificationsAt': now,
       };
 
       final member1 = MemberModel.fromMap(member1Map, userId: 'test_uid_1');
@@ -90,6 +91,7 @@ void main() {
       expect(member1.role, MemberRole.hr);
       expect(member1.joinedAt, now);
       expect(member1.isActive, isTrue);
+      expect(member1.lastSeenNotificationsAt, now);
 
       expect(member1.stats.mohsensCount, 3);
       expect(member1.stats.warningsCount, 0);
@@ -105,6 +107,7 @@ void main() {
       expect(member1ToMap['userId'], 'test_uid_1');
       expect(member1ToMap['displayName'], 'Asmaa Test');
       expect(member1ToMap['role'], 'hr');
+      expect(member1ToMap['lastSeenNotificationsAt'], now);
       expect((member1ToMap['stats'] as Map)['mohsensCount'], 3);
       expect((member1ToMap['traits'] as Map)['goodAttitude'], 5);
 
@@ -302,34 +305,60 @@ void main() {
       expect(noteToMap['isDone'], isFalse);
     });
 
-    test('10. NotificationModel - notif_1', () {
-      final notifMap = {
+    test('10. NotificationModel - notif_1 (Personal) and notif_2 (Broadcast)', () {
+      final notif1Map = {
         'actorId': 'test_uid_1',
+        'actorName': 'Asmaa Test',
         'actorRole': 'hr',
-        'type': 'mohsen_added',
+        'type': 'mohsenAdded',
         'title': 'محسن جديد',
         'message': 'Asmaa Test أضافت محسن لـ Karim Test',
         'committeeId': 'committee_test',
         'targetUserId': 'test_uid_2',
         'createdAt': now,
-        'isRead': false,
       };
 
-      final notif = NotificationModel.fromMap(notifMap, id: 'notif_1');
-      expect(notif.id, 'notif_1');
-      expect(notif.actorId, 'test_uid_1');
-      expect(notif.actorRole, 'hr');
-      expect(notif.type, 'mohsen_added');
-      expect(notif.title, 'محسن جديد');
-      expect(notif.message, 'Asmaa Test أضافت محسن لـ Karim Test');
-      expect(notif.committeeId, 'committee_test');
-      expect(notif.targetUserId, 'test_uid_2');
-      expect(notif.createdAt, now);
-      expect(notif.isRead, isFalse);
+      final notif1 = NotificationModel.fromMap(notif1Map, id: 'notif_1');
+      expect(notif1.id, 'notif_1');
+      expect(notif1.actorId, 'test_uid_1');
+      expect(notif1.actorName, 'Asmaa Test');
+      expect(notif1.actorRole, 'hr');
+      expect(notif1.type, NotificationType.mohsenAdded);
+      expect(notif1.title, 'محسن جديد');
+      expect(notif1.message, 'Asmaa Test أضافت محسن لـ Karim Test');
+      expect(notif1.committeeId, 'committee_test');
+      expect(notif1.targetUserId, 'test_uid_2');
+      expect(notif1.createdAt, now);
 
-      final notifToMap = notif.toMap();
-      expect(notifToMap['actorRole'], 'hr');
-      expect(notifToMap['isRead'], isFalse);
+      final notif1ToMap = notif1.toMap();
+      expect(notif1ToMap['actorName'], 'Asmaa Test');
+      expect(notif1ToMap['type'], 'mohsenAdded');
+      expect(notif1ToMap['targetUserId'], 'test_uid_2');
+
+      // Test general broadcast notification (targetUserId == null)
+      final notif2Map = {
+        'actorId': 'test_uid_1',
+        'actorName': 'Asmaa Test',
+        'actorRole': 'hr',
+        'type': 'meetingAdded',
+        'title': 'اجتماع جديد',
+        'message': 'تمت إضافة اجتماع جديد للجنة',
+        'committeeId': 'committee_test',
+        'targetUserId': null,
+        'createdAt': now,
+      };
+
+      final notif2 = NotificationModel.fromMap(notif2Map, id: 'notif_2');
+      expect(notif2.targetUserId, isNull);
+      expect(notif2.type, NotificationType.meetingAdded);
+      expect(notif2.toMap().containsKey('targetUserId'), isFalse);
+
+      // Test isUnread client-side helper
+      final memberLastSeenBefore = now.subtract(const Duration(minutes: 5));
+      final memberLastSeenAfter = now.add(const Duration(minutes: 5));
+      expect(notif1.isUnread(memberLastSeenBefore), isTrue);
+      expect(notif1.isUnread(memberLastSeenAfter), isFalse);
+      expect(notif1.isUnread(null), isTrue);
     });
   });
 }
