@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show listEquals;
+
 import 'date_time_helper.dart';
 
 class UserModel {
@@ -80,6 +82,7 @@ class UserModel {
           name == other.name &&
           email == other.email &&
           avatarUrl == other.avatarUrl &&
+          listEquals(committees, other.committees) &&
           defaultCommitteeId == other.defaultCommitteeId &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt;
@@ -90,6 +93,7 @@ class UserModel {
       name.hashCode ^
       email.hashCode ^
       avatarUrl.hashCode ^
+      Object.hashAll(committees) ^
       defaultCommitteeId.hashCode ^
       createdAt.hashCode ^
       updatedAt.hashCode;
