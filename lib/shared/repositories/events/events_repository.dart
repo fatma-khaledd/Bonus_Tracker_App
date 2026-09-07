@@ -6,5 +6,7 @@ abstract class EventsRepository {
     required EventModel event,
     required String actorName,
     required String actorRole,
+    String? notificationTitle,
+    String? notificationMessage,
   });
 }

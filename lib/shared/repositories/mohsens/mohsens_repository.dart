@@ -12,5 +12,7 @@ abstract class MohsensRepository {
     required MohsenEntryModel entry,
     required String actorName,
     required String actorRole,
+    String? notificationTitle,
+    String? notificationMessage,
   });
 }

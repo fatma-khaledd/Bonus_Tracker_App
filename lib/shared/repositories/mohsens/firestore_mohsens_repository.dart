@@ -37,6 +37,8 @@ class FirestoreMohsensRepository implements MohsensRepository {
     required MohsenEntryModel entry,
     required String actorName,
     required String actorRole,
+    String? notificationTitle,
+    String? notificationMessage,
   }) async {
     final memberRef =
         _firestore.doc(FirestorePaths.member(committeeId, memberId));
@@ -57,9 +59,9 @@ class FirestoreMohsensRepository implements MohsensRepository {
       type: isMohsen
           ? NotificationType.mohsenAdded
           : NotificationType.warningAdded,
-      title: isMohsen ? 'محسن جديد' : 'تحذير جديد',
-      message:
-          '$actorName أضاف ${isMohsen ? "محسن" : "تحذير"}: ${entry.reason}',
+      title: notificationTitle ?? (isMohsen ? 'New Mohsen' : 'New Warning'),
+      message: notificationMessage ??
+          '$actorName added ${isMohsen ? "mohsen" : "warning"}: ${entry.reason}',
       committeeId: committeeId,
       targetUserId: memberId,
       createdAt: DateTime.now(),

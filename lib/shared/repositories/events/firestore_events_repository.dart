@@ -16,6 +16,8 @@ class FirestoreEventsRepository implements EventsRepository {
     required EventModel event,
     required String actorName,
     required String actorRole,
+    String? notificationTitle,
+    String? notificationMessage,
   }) async {
     final batch = _firestore.batch();
     final eventRef = event.id.isNotEmpty
@@ -31,10 +33,11 @@ class FirestoreEventsRepository implements EventsRepository {
       actorName: actorName,
       actorRole: actorRole,
       type: NotificationType.eventAdded,
-      title: 'فعالية جديدة: ${event.title}',
-      message: event.description.isNotEmpty
-          ? event.description
-          : 'تمت إضافة فعالية جديدة للجنة',
+      title: notificationTitle ?? 'New Event: ${event.title}',
+      message: notificationMessage ??
+          (event.description.isNotEmpty
+              ? event.description
+              : 'A new event has been scheduled'),
       committeeId: committeeId,
       createdAt: DateTime.now(),
     );

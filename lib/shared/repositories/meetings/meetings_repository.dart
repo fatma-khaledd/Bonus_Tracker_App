@@ -6,5 +6,7 @@ abstract class MeetingsRepository {
     required MeetingModel meeting,
     required String actorName,
     required String actorRole,
+    String? notificationTitle,
+    String? notificationMessage,
   });
 }

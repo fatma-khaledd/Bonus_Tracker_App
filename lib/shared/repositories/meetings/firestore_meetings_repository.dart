@@ -16,6 +16,8 @@ class FirestoreMeetingsRepository implements MeetingsRepository {
     required MeetingModel meeting,
     required String actorName,
     required String actorRole,
+    String? notificationTitle,
+    String? notificationMessage,
   }) async {
     final batch = _firestore.batch();
     final meetingRef = meeting.id.isNotEmpty
@@ -31,10 +33,11 @@ class FirestoreMeetingsRepository implements MeetingsRepository {
       actorName: actorName,
       actorRole: actorRole,
       type: NotificationType.meetingAdded,
-      title: 'اجتماع جديد: ${meeting.title}',
-      message: meeting.description.isNotEmpty
-          ? meeting.description
-          : 'تمت إضافة اجتماع جديد للجنة',
+      title: notificationTitle ?? 'New Meeting: ${meeting.title}',
+      message: notificationMessage ??
+          (meeting.description.isNotEmpty
+              ? meeting.description
+              : 'A new meeting has been scheduled'),
       committeeId: committeeId,
       createdAt: DateTime.now(),
     );

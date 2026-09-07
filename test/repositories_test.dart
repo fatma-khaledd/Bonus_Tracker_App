@@ -43,6 +43,8 @@ class MockMohsensRepository implements MohsensRepository {
     required MohsenEntryModel entry,
     required String actorName,
     required String actorRole,
+    String? notificationTitle,
+    String? notificationMessage,
   }) async {
     addMohsenCalled = true;
     history.add(entry);
@@ -58,6 +60,8 @@ class MockMeetingsRepository implements MeetingsRepository {
     required MeetingModel meeting,
     required String actorName,
     required String actorRole,
+    String? notificationTitle,
+    String? notificationMessage,
   }) async {
     lastAddedMeeting = meeting;
   }
@@ -72,6 +76,8 @@ class MockEventsRepository implements EventsRepository {
     required EventModel event,
     required String actorName,
     required String actorRole,
+    String? notificationTitle,
+    String? notificationMessage,
   }) async {
     lastAddedEvent = event;
   }
