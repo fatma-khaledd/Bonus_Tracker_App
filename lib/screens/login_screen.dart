@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../core/theme/app_colors.dart';
+import '../core/theme/theme.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,58 +15,59 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   Future<String?>? onLogin(LoginData data) {
+    // FirebaseAuth.instance
     return null; //return null mean logged in succesfully
   }
 
   Future<String?>? onRecoverPassword(String email) {
-    // send reset email 
-    return null;
-  }
-
-  Future<String?>? onSignUp(SignupData data) {
+    // send reset email
     return null;
   }
 
   LoginTheme buildTheme() {
     return LoginTheme(
-      errorColor: Colors.red,
-      primaryColor: Colors.orange[50], //background color
-      accentColor: Colors.white, // text color
-      cardInitialHeight: 35,
-      
+      errorColor: AppColors.error,
+      primaryColor: AppColors.loginScreenBackground, //background color
+      bodyStyle: AppTextStyles.loginbodySecondary, //"forgot password" style
+      cardTheme: CardTheme(
+        color: AppColors.loginCardBackground,
+        surfaceTintColor: AppColors.chipUnselected,
+      ),
       buttonTheme: LoginButtonTheme(
-        splashColor: Colors.white,
-        backgroundColor: Colors.orange[900],
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        splashColor: AppColors.textOnPrimary,
+        backgroundColor: AppColors.loginAccentText,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       inputTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.grey[100],
-
+        fillColor: AppColors.background,
+        labelStyle: AppTextStyles.loginInputLabel,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppColors.loginInputBorder),
         ),
       ),
-      buttonStyle: const TextStyle(fontSize: 18),
-      pageColorLight: Colors.orange[50],
-      pageColorDark: Colors.black,
+      buttonStyle: AppTextStyles.button,
 
-      titleStyle: GoogleFonts.slabo13px(
-        fontSize: 33.5,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-        wordSpacing: 0.25,
-      ),
+      titleStyle: AppTextStyles.loginScreenTitle,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return FlutterLogin(
-      onLogin: onLogin,
-      onRecoverPassword: onRecoverPassword,
-      onSignup: onSignUp,
+    return Stack(
+      children: [
+        FlutterLogin(
+          title: 'LOGIN',
+          theme: buildTheme(),
+          onLogin: onLogin,
+          onRecoverPassword: onRecoverPassword,
+          onSubmitAnimationCompleted: () {
+            //will handeled with Navigation
+          },
+        ),
+        //use stack so i can add the Penguin and the Crescent moon , osc logo and so on...
+      ],
     );
   }
 }
