@@ -55,4 +55,12 @@ abstract class AppColors {
   static const Color darkSurfaceVariant = Color(0xFF3D3024);
   static const Color darkTextPrimary = Color(0xFFF5EDE0);
   static const Color darkTextSecondary = Color(0xFFB8A08A);
+
+  //addition colors for login screen
+  static const Color loginScreenBackground = Color.fromARGB(255, 253, 234, 213);
+  static const Color loginCardBackground = Color(0xFFEDCFB5);
+  static const Color loginInputFill = Color(0xFFFFFAF3);
+  static const Color loginInputBorder = Color(0xFFCA8B5A);
+  static const Color loginAccentText = Color(0xFFA74700);
+  static const Color loginLockIcon = Color(0xFFED7806);
 }
