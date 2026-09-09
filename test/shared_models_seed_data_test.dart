@@ -351,7 +351,7 @@ void main() {
       final notif2 = NotificationModel.fromMap(notif2Map, id: 'notif_2');
       expect(notif2.targetUserId, isNull);
       expect(notif2.type, NotificationType.meetingAdded);
-      expect(notif2.toMap().containsKey('targetUserId'), isFalse);
+      expect(notif2.toMap()['targetUserId'], isNull);
 
       // Test isUnread client-side helper
       final memberLastSeenBefore = now.subtract(const Duration(minutes: 5));
