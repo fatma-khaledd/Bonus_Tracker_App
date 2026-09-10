@@ -3,26 +3,26 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../shared/models/models.dart';
-import '../services/notes_service.dart';
+import '../../../shared/repositories/repositories.dart';
 import 'notes_state.dart';
 
 /// Cubit that manages the state for the Personal Notes feature.
 ///
 /// Architecture flow:
 /// ```
-/// NotesScreen → NotesCubit → NotesService → Firestore
+/// UI Layer → NotesCubit → NotesRepository (Interface) → FirestoreNotesRepository → Cloud Firestore
 /// ```
 ///
-/// The cubit subscribes to a real-time Firestore stream so that the UI
-/// automatically reflects any changes (add / update / delete) without manual
-/// refreshes.
+/// The cubit subscribes to a real-time Firestore stream via [NotesRepository]
+/// so that the UI automatically reflects any changes (add / update / delete).
 class NotesCubit extends Cubit<NotesState> {
-  final NotesService _notesService;
+  final NotesRepository _notesRepository;
   StreamSubscription<List<NoteModel>>? _notesSubscription;
 
   NotesCubit({
-    required this._notesService,
-  }) : super(const NotesState());
+    required NotesRepository notesRepository,
+  })  : _notesRepository = notesRepository,
+        super(const NotesState());
 
   // ---------------------------------------------------------------------------
   // Load / Watch
@@ -33,13 +33,13 @@ class NotesCubit extends Cubit<NotesState> {
   /// Emits [NotesStatus.loading] immediately, then [NotesStatus.success]
   /// every time Firestore delivers a new snapshot, or [NotesStatus.error]
   /// if the stream errors out.
-  void loadNotes() {
+  void loadNotes({String? uid}) {
     emit(state.copyWith(status: NotesStatus.loading, clearError: true));
 
     // Cancel any previous subscription to avoid duplicates.
     _notesSubscription?.cancel();
 
-    _notesSubscription = _notesService.watchPersonalNotes().listen(
+    _notesSubscription = _notesRepository.watchPersonalNotes(uid: uid).listen(
       (notes) {
         emit(state.copyWith(
           status: NotesStatus.success,
@@ -83,6 +83,7 @@ class NotesCubit extends Cubit<NotesState> {
   Future<void> addNote({
     required String title,
     required String content,
+    String? ownerId,
   }) async {
     emit(state.copyWith(
       actionStatus: NotesActionStatus.submitting,
@@ -92,7 +93,11 @@ class NotesCubit extends Cubit<NotesState> {
     ));
 
     try {
-      await _notesService.addNote(title: title, content: content);
+      await _notesRepository.addNote(
+        title: title,
+        content: content,
+        ownerId: ownerId,
+      );
       emit(state.copyWith(
         actionStatus: NotesActionStatus.success,
         actionType: NotesActionType.add,
@@ -125,7 +130,7 @@ class NotesCubit extends Cubit<NotesState> {
     ));
 
     try {
-      await _notesService.updateNote(note);
+      await _notesRepository.updateNote(note);
       emit(state.copyWith(
         actionStatus: NotesActionStatus.success,
         actionType: NotesActionType.update,
@@ -157,7 +162,7 @@ class NotesCubit extends Cubit<NotesState> {
     ));
 
     try {
-      await _notesService.toggleNoteDone(noteId: noteId, isDone: isDone);
+      await _notesRepository.toggleNoteDone(noteId: noteId, isDone: isDone);
       emit(state.copyWith(
         actionStatus: NotesActionStatus.success,
         actionType: NotesActionType.toggleDone,
@@ -190,7 +195,7 @@ class NotesCubit extends Cubit<NotesState> {
     ));
 
     try {
-      await _notesService.deleteNote(noteId);
+      await _notesRepository.deleteNote(noteId);
       emit(state.copyWith(
         actionStatus: NotesActionStatus.success,
         actionType: NotesActionType.delete,
