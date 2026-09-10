@@ -69,8 +69,7 @@ class CustomBottomNavBar extends StatelessWidget {
                     item.label,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: isActive ? Colors.white : Colors.white70,
-                      fontWeight:
-                          isActive ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                       fontSize: 11,
                     ),
                   ),

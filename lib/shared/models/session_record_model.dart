@@ -103,8 +103,9 @@ class SessionRecordModel {
       committeeId: committeeId ?? map['committeeId'] as String?,
       sessionRef: map['sessionRef'] as String? ?? '',
       sessionType: SessionType.fromString(map['sessionType'] as String?),
-      attendanceStatus:
-          AttendanceStatus.fromString(map['attendanceStatus'] as String?),
+      attendanceStatus: AttendanceStatus.fromString(
+        map['attendanceStatus'] as String?,
+      ),
       taskStatus: TaskStatus.fromString(map['taskStatus'] as String?),
       recordedBy: map['recordedBy'] as String? ?? '',
       createdAt: DateTimeHelper.parseOrNow(map['createdAt']),

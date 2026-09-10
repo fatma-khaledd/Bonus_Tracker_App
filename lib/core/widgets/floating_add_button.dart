@@ -13,11 +13,7 @@ class FloatingAddButton extends StatelessWidget {
   final VoidCallback onPressed;
   final double size;
 
-  const FloatingAddButton({
-    super.key,
-    required this.onPressed,
-    this.size = 56,
-  });
+  const FloatingAddButton({super.key, required this.onPressed, this.size = 56});
 
   @override
   Widget build(BuildContext context) {

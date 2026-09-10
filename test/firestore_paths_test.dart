@@ -5,6 +5,7 @@ void main() {
   group('FirestorePaths Verification', () {
     const committeeId = 'committee_test';
     const uid1 = 'test_uid_1';
+
     const uid2 = 'test_uid_2';
 
     test('1. Users Paths', () {
@@ -15,7 +16,10 @@ void main() {
 
     test('2. Committees Paths', () {
       expect(FirestorePaths.committees(), 'committees');
-      expect(FirestorePaths.committee(committeeId), 'committees/committee_test');
+      expect(
+        FirestorePaths.committee(committeeId),
+        'committees/committee_test',
+      );
     });
 
     test('3. Members Paths', () {
@@ -99,10 +103,7 @@ void main() {
 
     test('10. Notifications Paths', () {
       expect(FirestorePaths.notifications(), 'notifications');
-      expect(
-        FirestorePaths.notification('notif_1'),
-        'notifications/notif_1',
-      );
+      expect(FirestorePaths.notification('notif_1'), 'notifications/notif_1');
     });
   });
 }

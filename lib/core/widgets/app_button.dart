@@ -44,8 +44,8 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.width,
     this.height,
-  })  : style = AppButtonStyle.primary,
-        outlined = false;
+  }) : style = AppButtonStyle.primary,
+       outlined = false;
 
   const AppButton.secondary({
     super.key,
@@ -54,8 +54,8 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.width,
     this.height,
-  })  : style = AppButtonStyle.secondary,
-        outlined = false;
+  }) : style = AppButtonStyle.secondary,
+       outlined = false;
 
   const AppButton.outlined({
     super.key,

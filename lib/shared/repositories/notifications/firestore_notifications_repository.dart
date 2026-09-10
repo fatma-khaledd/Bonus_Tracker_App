@@ -10,7 +10,7 @@ class FirestoreNotificationsRepository implements NotificationsRepository {
   final FirebaseFirestore _firestore;
 
   FirestoreNotificationsRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Stream<List<NotificationModel>> watchNotifications({
@@ -41,14 +41,17 @@ class FirestoreNotificationsRepository implements NotificationsRepository {
             .where('targetUserId', isEqualTo: uid)
             .orderBy('createdAt', descending: true)
             .snapshots()
-            .listen((snap) {
-          lastPersonal = snap.docs
-              .map((d) => NotificationModel.fromMap(d.data(), id: d.id))
-              .toList();
-          emitIfReady();
-        }, onError: (e, st) {
-          if (!controller.isClosed) controller.addError(e, st);
-        });
+            .listen(
+              (snap) {
+                lastPersonal = snap.docs
+                    .map((d) => NotificationModel.fromMap(d.data(), id: d.id))
+                    .toList();
+                emitIfReady();
+              },
+              onError: (e, st) {
+                if (!controller.isClosed) controller.addError(e, st);
+              },
+            );
 
         broadcastSub = _firestore
             .collection(FirestorePaths.notifications())
@@ -56,14 +59,17 @@ class FirestoreNotificationsRepository implements NotificationsRepository {
             .where('targetUserId', isNull: true)
             .orderBy('createdAt', descending: true)
             .snapshots()
-            .listen((snap) {
-          lastBroadcast = snap.docs
-              .map((d) => NotificationModel.fromMap(d.data(), id: d.id))
-              .toList();
-          emitIfReady();
-        }, onError: (e, st) {
-          if (!controller.isClosed) controller.addError(e, st);
-        });
+            .listen(
+              (snap) {
+                lastBroadcast = snap.docs
+                    .map((d) => NotificationModel.fromMap(d.data(), id: d.id))
+                    .toList();
+                emitIfReady();
+              },
+              onError: (e, st) {
+                if (!controller.isClosed) controller.addError(e, st);
+              },
+            );
       },
       onCancel: () async {
         await personalSub?.cancel();

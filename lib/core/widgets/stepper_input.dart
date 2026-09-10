@@ -39,10 +39,7 @@ class StepperInput extends StatelessWidget {
           constraints: const BoxConstraints(minWidth: 48),
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: AppDimens.md),
-          child: Text(
-            value.toString(),
-            style: AppTextStyles.heading2,
-          ),
+          child: Text(value.toString(), style: AppTextStyles.heading2),
         ),
         _StepperButton(
           icon: Icons.remove,

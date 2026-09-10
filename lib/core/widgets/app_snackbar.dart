@@ -13,11 +13,7 @@ class InlineAlert extends StatelessWidget {
   final String message;
   final VoidCallback? onDismiss;
 
-  const InlineAlert({
-    super.key,
-    required this.message,
-    this.onDismiss,
-  });
+  const InlineAlert({super.key, required this.message, this.onDismiss});
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +66,11 @@ class InlineAlert extends StatelessWidget {
 }
 
 /// Helper function to display standard floating SnackBar feedback messages.
-void showAppSnackbar(BuildContext context, String message, {bool isError = false}) {
+void showAppSnackbar(
+  BuildContext context,
+  String message, {
+  bool isError = false,
+}) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(

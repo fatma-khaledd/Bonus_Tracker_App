@@ -163,8 +163,10 @@ void main() {
       );
 
       expect(repo.addMohsenCalled, isTrue);
-      final history =
-          await repo.getMohsensHistory(committeeId: 'c1', uid: 'u1');
+      final history = await repo.getMohsensHistory(
+        committeeId: 'c1',
+        uid: 'u1',
+      );
       expect(history.length, 1);
       expect(history.first.reason, 'Excellent work');
     });
@@ -216,28 +218,30 @@ void main() {
       expect(repo.lastAddedEvent!.title, 'Orientation Day');
     });
 
-    test('NotificationsRepository mock implementation fulfills contract',
-        () async {
-      final repo = MockNotificationsRepository();
-      final notif = NotificationModel(
-        id: 'n1',
-        actorId: 'a1',
-        actorName: 'HR Team',
-        actorRole: 'hr',
-        type: NotificationType.mohsenAdded,
-        title: 'New Mohsen',
-        message: 'You received +5',
-        committeeId: 'c1',
-        createdAt: DateTime(2026, 9, 7),
-      );
+    test(
+      'NotificationsRepository mock implementation fulfills contract',
+      () async {
+        final repo = MockNotificationsRepository();
+        final notif = NotificationModel(
+          id: 'n1',
+          actorId: 'a1',
+          actorName: 'HR Team',
+          actorRole: 'hr',
+          type: NotificationType.mohsenAdded,
+          title: 'New Mohsen',
+          message: 'You received +5',
+          committeeId: 'c1',
+          createdAt: DateTime(2026, 9, 7),
+        );
 
-      expectLater(
-        repo.watchNotifications(committeeId: 'c1', uid: 'u1'),
-        emits([notif]),
-      );
+        expectLater(
+          repo.watchNotifications(committeeId: 'c1', uid: 'u1'),
+          emits([notif]),
+        );
 
-      repo.controller.add([notif]);
-    });
+        repo.controller.add([notif]);
+      },
+    );
 
     test('StatsRepository mock implementation fulfills contract', () async {
       final repo = MockStatsRepository();

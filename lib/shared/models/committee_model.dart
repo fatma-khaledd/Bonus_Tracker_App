@@ -20,17 +20,10 @@ class CommitteeModel {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'createdAt': createdAt,
-    };
+    return {'name': name, 'createdAt': createdAt};
   }
 
-  CommitteeModel copyWith({
-    String? id,
-    String? name,
-    DateTime? createdAt,
-  }) {
+  CommitteeModel copyWith({String? id, String? name, DateTime? createdAt}) {
     return CommitteeModel(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -51,5 +44,6 @@ class CommitteeModel {
   int get hashCode => id.hashCode ^ name.hashCode ^ createdAt.hashCode;
 
   @override
-  String toString() => 'CommitteeModel(id: $id, name: $name, createdAt: $createdAt)';
+  String toString() =>
+      'CommitteeModel(id: $id, name: $name, createdAt: $createdAt)';
 }

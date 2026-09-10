@@ -29,7 +29,8 @@ class UserModel {
       name: map['name'] as String? ?? '',
       email: map['email'] as String? ?? '',
       avatarUrl: map['avatarUrl'] as String?,
-      committees: (map['committees'] as List<dynamic>?)
+      committees:
+          (map['committees'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],

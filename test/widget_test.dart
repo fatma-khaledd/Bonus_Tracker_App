@@ -4,8 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AppButton Widget Tests', () {
-    testWidgets('renders button text and triggers onPressed on tap',
-        (WidgetTester tester) async {
+    testWidgets('renders button text and triggers onPressed on tap', (
+      WidgetTester tester,
+    ) async {
       bool tapped = false;
 
       await tester.pumpWidget(
@@ -26,8 +27,9 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('shows CircularProgressIndicator when isLoading is true',
-        (WidgetTester tester) async {
+    testWidgets('shows CircularProgressIndicator when isLoading is true', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -44,15 +46,13 @@ void main() {
       expect(find.text('Loading...'), findsNothing);
     });
 
-    testWidgets('renders outlined button correctly',
-        (WidgetTester tester) async {
+    testWidgets('renders outlined button correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: AppButton.outlined(
-              text: 'Outlined Button',
-              onPressed: () {},
-            ),
+            body: AppButton.outlined(text: 'Outlined Button', onPressed: () {}),
           ),
         ),
       );

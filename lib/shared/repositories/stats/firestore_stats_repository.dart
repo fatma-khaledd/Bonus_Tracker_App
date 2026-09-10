@@ -8,7 +8,7 @@ class FirestoreStatsRepository implements StatsRepository {
   final FirebaseFirestore _firestore;
 
   FirestoreStatsRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<MonthlyStatsModel?> getMemberMonthlyStats({
@@ -38,8 +38,7 @@ class FirestoreStatsRepository implements StatsRepository {
         .get();
 
     return snap.docs
-        .map((doc) =>
-            SessionRecordModel.fromMap(doc.data(), sessionId: doc.id))
+        .map((doc) => SessionRecordModel.fromMap(doc.data(), sessionId: doc.id))
         .toList();
   }
 }

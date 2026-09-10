@@ -39,10 +39,7 @@ class StatBox extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            label,
-            style: AppTextStyles.statLabel,
-          ),
+          Text(label, style: AppTextStyles.statLabel),
           const SizedBox(height: AppDimens.sm),
           Text(
             value,

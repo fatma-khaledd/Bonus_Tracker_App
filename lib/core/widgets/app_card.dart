@@ -34,19 +34,14 @@ class AppCard extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(AppDimens.cardPadding),
       decoration: BoxDecoration(
         color: color ?? AppColors.surface,
-        borderRadius: BorderRadius.circular(
-          borderRadius ?? AppDimens.radiusMd,
-        ),
+        borderRadius: BorderRadius.circular(borderRadius ?? AppDimens.radiusMd),
         border: border,
       ),
       child: child,
     );
 
     if (onTap != null) {
-      return GestureDetector(
-        onTap: onTap,
-        child: card,
-      );
+      return GestureDetector(onTap: onTap, child: card);
     }
     return card;
   }

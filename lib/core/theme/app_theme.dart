@@ -86,9 +86,7 @@ abstract class AppTheme {
           return Colors.transparent;
         }),
         side: const BorderSide(color: AppColors.secondary, width: 1.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(3),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.bottomNavBackground,
@@ -156,9 +154,7 @@ abstract class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
-      textTheme: GoogleFonts.cairoTextTheme(
-        ThemeData.dark().textTheme,
-      ),
+      textTheme: GoogleFonts.cairoTextTheme(ThemeData.dark().textTheme),
     );
   }
 }

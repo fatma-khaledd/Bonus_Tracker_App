@@ -8,7 +8,7 @@ class FirestoreEventsRepository implements EventsRepository {
   final FirebaseFirestore _firestore;
 
   FirestoreEventsRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<void> addEvent({
@@ -24,8 +24,9 @@ class FirestoreEventsRepository implements EventsRepository {
         ? _firestore.doc(FirestorePaths.event(committeeId, event.id))
         : _firestore.collection(FirestorePaths.events(committeeId)).doc();
 
-    final notifRef =
-        _firestore.collection(FirestorePaths.notifications()).doc();
+    final notifRef = _firestore
+        .collection(FirestorePaths.notifications())
+        .doc();
 
     final notification = NotificationModel(
       id: notifRef.id,
@@ -34,7 +35,8 @@ class FirestoreEventsRepository implements EventsRepository {
       actorRole: actorRole,
       type: NotificationType.eventAdded,
       title: notificationTitle ?? 'New Event: ${event.title}',
-      message: notificationMessage ??
+      message:
+          notificationMessage ??
           (event.description.isNotEmpty
               ? event.description
               : 'A new event has been scheduled'),
