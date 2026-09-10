@@ -1,4 +1,4 @@
-import 'package:bonus_tracker_app/firebase_options.dart';
+/*import 'package:bonus_tracker_app/firebase_options.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +29,37 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.light,
 
       home: const LoginScreen(),
+    );
+  }
+}
+*/
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'core/theme/theme.dart';
+import 'features/auth/cubit/history_cubit.dart';
+import 'features/auth/repositories/mock_mohsens_repository.dart';
+import 'features/auth/screens/history_screen.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      home: BlocProvider(
+        create: (_) =>
+            HistoryCubit(repository: MockMohsensRepository())
+              ..loadHistory(committeeId: 'committee1', uid: 'member1'),
+        child: const MohsenHistoryBottomSheet(),
+      ),
     );
   }
 }
