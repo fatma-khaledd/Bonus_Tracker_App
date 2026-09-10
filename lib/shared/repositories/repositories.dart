@@ -6,6 +6,8 @@ export 'members/firestore_members_repository.dart';
 export 'members/members_repository.dart';
 export 'mohsens/firestore_mohsens_repository.dart';
 export 'mohsens/mohsens_repository.dart';
+export 'notes/firestore_notes_repository.dart';
+export 'notes/notes_repository.dart';
 export 'notifications/firestore_notifications_repository.dart';
 export 'notifications/notifications_repository.dart';
 export 'stats/firestore_stats_repository.dart';
