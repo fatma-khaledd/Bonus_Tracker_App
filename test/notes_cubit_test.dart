@@ -2,31 +2,36 @@ import 'dart:async';
 
 import 'package:bonus_tracker_app/features/notes/notes.dart';
 import 'package:bonus_tracker_app/shared/models/models.dart';
+import 'package:bonus_tracker_app/shared/repositories/repositories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class FakeNotesService implements NotesService {
+class FakeNotesRepository implements NotesRepository {
   final StreamController<List<NoteModel>> notesController =
       StreamController<List<NoteModel>>.broadcast();
 
   bool shouldThrow = false;
   String? lastAddedTitle;
   String? lastAddedContent;
+  String? lastAddedOwnerId;
   NoteModel? lastUpdatedNote;
   String? lastToggledId;
   bool? lastToggledDone;
   String? lastDeletedId;
 
   @override
-  Stream<List<NoteModel>> watchPersonalNotes() => notesController.stream;
+  Stream<List<NoteModel>> watchPersonalNotes({String? uid}) =>
+      notesController.stream;
 
   @override
   Future<void> addNote({
     required String title,
     required String content,
+    String? ownerId,
   }) async {
     if (shouldThrow) throw Exception('Failed to add note');
     lastAddedTitle = title;
     lastAddedContent = content;
+    lastAddedOwnerId = ownerId;
   }
 
   @override
@@ -58,17 +63,17 @@ class FakeNotesService implements NotesService {
 
 void main() {
   group('NotesCubit', () {
-    late FakeNotesService fakeNotesService;
+    late FakeNotesRepository fakeNotesRepository;
     late NotesCubit notesCubit;
 
     setUp(() {
-      fakeNotesService = FakeNotesService();
-      notesCubit = NotesCubit(notesService: fakeNotesService);
+      fakeNotesRepository = FakeNotesRepository();
+      notesCubit = NotesCubit(notesRepository: fakeNotesRepository);
     });
 
     tearDown(() {
       notesCubit.close();
-      fakeNotesService.dispose();
+      fakeNotesRepository.dispose();
     });
 
     test('initial state has initial status and actionStatus', () {
@@ -94,7 +99,7 @@ void main() {
       notesCubit.loadNotes();
       expect(notesCubit.state.status, equals(NotesStatus.loading));
 
-      fakeNotesService.notesController.add(sampleNotes);
+      fakeNotesRepository.notesController.add(sampleNotes);
       await Future<void>.delayed(Duration.zero);
 
       expect(notesCubit.state.status, equals(NotesStatus.success));
@@ -108,8 +113,8 @@ void main() {
       await notesCubit.addNote(title: 'New Note', content: 'New Content');
       await Future<void>.delayed(Duration.zero);
 
-      expect(fakeNotesService.lastAddedTitle, 'New Note');
-      expect(fakeNotesService.lastAddedContent, 'New Content');
+      expect(fakeNotesRepository.lastAddedTitle, 'New Note');
+      expect(fakeNotesRepository.lastAddedContent, 'New Content');
 
       expect(states.length, 2);
       expect(states[0].actionStatus, NotesActionStatus.submitting);
@@ -124,7 +129,7 @@ void main() {
     });
 
     test('addNote emits submitting then error on failure', () async {
-      fakeNotesService.shouldThrow = true;
+      fakeNotesRepository.shouldThrow = true;
       final states = <NotesState>[];
       final subscription = notesCubit.stream.listen(states.add);
 
@@ -158,7 +163,7 @@ void main() {
       await notesCubit.updateNote(note);
       await Future<void>.delayed(Duration.zero);
 
-      expect(fakeNotesService.lastUpdatedNote, note);
+      expect(fakeNotesRepository.lastUpdatedNote, note);
       expect(states.length, 2);
       expect(states[0].actionStatus, NotesActionStatus.submitting);
       expect(states[0].actionType, NotesActionType.update);
@@ -175,8 +180,8 @@ void main() {
       await notesCubit.toggleNoteDone(noteId: 'n1', isDone: true);
       await Future<void>.delayed(Duration.zero);
 
-      expect(fakeNotesService.lastToggledId, 'n1');
-      expect(fakeNotesService.lastToggledDone, isTrue);
+      expect(fakeNotesRepository.lastToggledId, 'n1');
+      expect(fakeNotesRepository.lastToggledDone, isTrue);
       expect(states.length, 2);
       expect(states[0].actionStatus, NotesActionStatus.submitting);
       expect(states[0].actionType, NotesActionType.toggleDone);
@@ -193,7 +198,7 @@ void main() {
       await notesCubit.deleteNote('n1');
       await Future<void>.delayed(Duration.zero);
 
-      expect(fakeNotesService.lastDeletedId, 'n1');
+      expect(fakeNotesRepository.lastDeletedId, 'n1');
       expect(states.length, 2);
       expect(states[0].actionStatus, NotesActionStatus.submitting);
       expect(states[0].actionType, NotesActionType.delete);
@@ -204,7 +209,7 @@ void main() {
     });
 
     test('resetActionStatus resets actionStatus, actionType, actionError', () async {
-      fakeNotesService.shouldThrow = true;
+      fakeNotesRepository.shouldThrow = true;
       await notesCubit.addNote(title: 'Fail', content: 'Fail');
       await Future<void>.delayed(Duration.zero);
       expect(notesCubit.state.actionStatus, NotesActionStatus.error);
@@ -217,14 +222,14 @@ void main() {
 
     test('subsequent successful action clears previous error and actionError', () async {
       // 1. Fail first
-      fakeNotesService.shouldThrow = true;
+      fakeNotesRepository.shouldThrow = true;
       await notesCubit.addNote(title: 'Fail', content: 'Fail');
       await Future<void>.delayed(Duration.zero);
       expect(notesCubit.state.isActionError, isTrue);
       expect(notesCubit.state.actionErrorMessage, isNotNull);
 
       // 2. Now succeed
-      fakeNotesService.shouldThrow = false;
+      fakeNotesRepository.shouldThrow = false;
       await notesCubit.addNote(title: 'Success', content: 'Content');
       await Future<void>.delayed(Duration.zero);
 
