@@ -84,7 +84,7 @@ class NotificationModel {
       'title': title,
       'message': message,
       'committeeId': committeeId,
-     'targetUserId': targetUserId,
+      if (targetUserId != null) 'targetUserId': targetUserId,
       'createdAt': createdAt,
     };
   }
