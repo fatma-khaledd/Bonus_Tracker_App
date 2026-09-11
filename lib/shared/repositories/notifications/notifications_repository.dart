@@ -5,4 +5,5 @@ abstract class NotificationsRepository {
     required String committeeId,
     required String uid,
   });
+ 
 }
