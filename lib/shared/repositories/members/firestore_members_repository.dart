@@ -10,24 +10,24 @@ class FirestoreMembersRepository implements MembersRepository {
   FirestoreMembersRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
   @override
-Future<MemberModel?> getMember({
-  required String committeeId,
-  required String uid,
-}) async {
-  final doc = await _firestore
-      .doc(FirestorePaths.member(committeeId, uid))
-      .get();
+  Future<MemberModel?> getMember({
+    required String committeeId,
+    required String uid,
+  }) async {
+    final doc = await _firestore
+        .doc(FirestorePaths.member(committeeId, uid))
+        .get();
 
-  if (!doc.exists || doc.data() == null) {
-    return null;
+    if (!doc.exists || doc.data() == null) {
+      return null;
+    }
+
+    return MemberModel.fromMap(
+      doc.data()!,
+      userId: doc.id,
+      committeeId: committeeId,
+    );
   }
-
-  return MemberModel.fromMap(
-    doc.data()!,
-    userId: doc.id,
-    committeeId: committeeId,
-  );
-}
 
   @override
   Future<List<MemberModel>> getMembersList(String committeeId) async {
