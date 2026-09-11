@@ -14,6 +14,17 @@ class MockMembersRepository implements MembersRepository {
   }
 
   @override
+  Future<MemberModel?> getMember({
+    required String committeeId,
+    required String uid,
+  }) async {
+    final matches = members.where(
+      (m) => m.committeeId == committeeId && m.userId == uid,
+    );
+    return matches.isEmpty ? null : matches.first;
+  }
+
+  @override
   Future<void> markNotificationsSeen({
     required String committeeId,
     required String uid,
