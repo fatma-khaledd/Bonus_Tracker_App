@@ -1,22 +1,13 @@
+
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 import 'avatar_placeholder.dart';
 
-/// Notification row displaying user avatar, name, role badge, and action summary.
-///
-/// ```dart
-/// NotificationListTile(
-///   name: 'Ahmed',
-///   role: 'HR',
-///   action: 'Added 2 Mohsen',
-///   isRead: false,
-///   onTap: () => handleNotificationClick(),
-/// )
-/// ```
 class NotificationListTile extends StatelessWidget {
   final String name;
   final String role;
-  final String action;
+  final String title;
+  final String message;
   final bool isRead;
   final String? avatarUrl;
   final VoidCallback? onTap;
@@ -25,7 +16,8 @@ class NotificationListTile extends StatelessWidget {
     super.key,
     required this.name,
     required this.role,
-    required this.action,
+    required this.title,
+    required this.message,
     this.isRead = false,
     this.avatarUrl,
     this.onTap,
@@ -54,14 +46,27 @@ class NotificationListTile extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(name, style: AppTextStyles.bodyBold),
+                      Text(
+                        name,
+                        style: AppTextStyles.bodyBold,
+                      ),
                       const SizedBox(width: AppDimens.sm),
-                      Text(role, style: AppTextStyles.notificationRole),
+                      Text(
+                        role,
+                        style: AppTextStyles.notificationRole,
+                      ),
                     ],
                   ),
                   const SizedBox(height: AppDimens.xs),
                   Text(
-                    action,
+                    title,
+                    style: AppTextStyles.bodyBold,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: AppDimens.xs),
+                  Text(
+                    message,
                     style: isRead
                         ? AppTextStyles.notificationRead
                         : AppTextStyles.notificationUnread,
@@ -77,3 +82,4 @@ class NotificationListTile extends StatelessWidget {
     );
   }
 }
+
