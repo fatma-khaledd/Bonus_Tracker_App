@@ -6,8 +6,8 @@
 #  formatting conflicts between team members.
 #
 #  Usage:
-#    chmod +x format.sh   # (first time only)
-#    ./format.sh
+#    chmod +x format_code.sh   # (first time only)
+#    ./format_code.sh
 # ============================================================
 
 set -e
@@ -76,17 +76,19 @@ CHANGED_FILES=0
 if [ -d "lib" ]; then
     OUTPUT=$(dart format --page-width=80 lib/ 2>&1)
     echo "$OUTPUT"
-    # Count changed files
-    CHANGED_COUNT=$(echo "$OUTPUT" | grep -c "Formatted" || true)
-    CHANGED_FILES=$((CHANGED_FILES + CHANGED_COUNT))
+    # Count changed files (matches '(1 changed)', '(2 changed)', etc.)
+    if echo "$OUTPUT" | grep -qE "\([1-9][0-9]* changed\)"; then
+        CHANGED_FILES=$((CHANGED_FILES + 1))
+    fi
 fi
 
 # Format test/
 if [ -d "test" ]; then
     OUTPUT=$(dart format --page-width=80 test/ 2>&1)
     echo "$OUTPUT"
-    CHANGED_COUNT=$(echo "$OUTPUT" | grep -c "Formatted" || true)
-    CHANGED_FILES=$((CHANGED_FILES + CHANGED_COUNT))
+    if echo "$OUTPUT" | grep -qE "\([1-9][0-9]* changed\)"; then
+        CHANGED_FILES=$((CHANGED_FILES + 1))
+    fi
 fi
 
 echo ""

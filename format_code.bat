@@ -6,7 +6,9 @@ REM  Run this script BEFORE pushing your code to avoid
 REM  formatting conflicts between team members.
 REM
 REM  Usage:
-REM    Double-click format.bat   OR   run in terminal: format.bat
+REM    - Double-click format_code.bat
+REM    - OR in PowerShell:  .\format_code.bat
+REM    - OR in CMD:         format_code.bat
 REM ============================================================
 
 REM ── Navigate to project root (where this script lives) ──────
