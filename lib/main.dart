@@ -3,19 +3,14 @@ import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'core/theme/theme.dart';
-import 'screens/login_screen.dart';
+import 'features/auth/screens/login_screen.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  runApp(
-    DevicePreview(
-      enabled: true,
-      builder: (context) => const MyApp(),
-    ),
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  DevicePreview.enable(); // !kReleaseMode already default
+  runApp(const MyApp());
 }
 
 /// Root application widget configuring global themes and preview settings.
@@ -32,10 +27,6 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
-
-      // DevicePreview Support
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
 
       home: const LoginScreen(),
     );
