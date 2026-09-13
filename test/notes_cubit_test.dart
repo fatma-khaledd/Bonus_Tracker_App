@@ -9,6 +9,7 @@ class FakeNotesRepository implements NotesRepository {
   final StreamController<List<NoteModel>> notesController =
       StreamController<List<NoteModel>>.broadcast();
 
+  Completer<void>? pendingMutation;
   bool shouldThrow = false;
   bool shouldThrowSyncOnWatch = false;
   String? lastAddedTitle;
@@ -33,6 +34,7 @@ class FakeNotesRepository implements NotesRepository {
     required String content,
     String? ownerId,
   }) async {
+    if (pendingMutation != null) await pendingMutation!.future;
     if (shouldThrow) throw Exception('Failed to add note');
     lastAddedTitle = title;
     lastAddedContent = content;
@@ -41,6 +43,7 @@ class FakeNotesRepository implements NotesRepository {
 
   @override
   Future<void> updateNote(NoteModel note) async {
+    if (pendingMutation != null) await pendingMutation!.future;
     if (shouldThrow) throw Exception('Failed to update note');
     lastUpdatedNote = note;
   }
@@ -50,6 +53,7 @@ class FakeNotesRepository implements NotesRepository {
     required String noteId,
     required bool isDone,
   }) async {
+    if (pendingMutation != null) await pendingMutation!.future;
     if (shouldThrow) throw Exception('Failed to toggle note');
     lastToggledId = noteId;
     lastToggledDone = isDone;
@@ -57,13 +61,12 @@ class FakeNotesRepository implements NotesRepository {
 
   @override
   Future<void> deleteNote(String noteId) async {
+    if (pendingMutation != null) await pendingMutation!.future;
     if (shouldThrow) throw Exception('Failed to delete note');
     lastDeletedId = noteId;
   }
 
-  void dispose() {
-    notesController.close();
-  }
+  Future<void> dispose() => notesController.close();
 }
 
 void main() {
@@ -76,9 +79,72 @@ void main() {
       notesCubit = NotesCubit(notesRepository: fakeNotesRepository);
     });
 
-    tearDown(() {
-      notesCubit.close();
-      fakeNotesRepository.dispose();
+    tearDown(() async {
+      if (!notesCubit.isClosed) await notesCubit.close();
+      await fakeNotesRepository.dispose();
+    });
+
+    final note = NoteModel(
+      id: 'n1',
+      ownerId: 'user1',
+      type: NoteType.personal,
+      title: 'Title',
+      content: 'Content',
+      createdAt: DateTime(2026, 1, 1),
+      updatedAt: DateTime(2026, 1, 1),
+    );
+    final actions = <NotesActionType, Future<void> Function(NotesCubit)>{
+      NotesActionType.add: (cubit) =>
+          cubit.addNote(title: 'Title', content: 'Content'),
+      NotesActionType.update: (cubit) => cubit.updateNote(note),
+      NotesActionType.toggleDone: (cubit) =>
+          cubit.toggleNoteDone(noteId: 'n1', isDone: true),
+      NotesActionType.delete: (cubit) => cubit.deleteNote('n1'),
+    };
+
+    for (final action in actions.entries) {
+      for (final fails in [false, true]) {
+        test(
+          '${action.key.name} completes safely after close (fails: $fails)',
+          () async {
+            final pending = Completer<void>();
+            fakeNotesRepository.pendingMutation = pending;
+            final operation = action.value(notesCubit);
+            final completion = expectLater(operation, completes);
+            expect(notesCubit.state.actionStatus, NotesActionStatus.submitting);
+            expect(notesCubit.state.actionType, action.key);
+            await notesCubit.close();
+            final closedState = notesCubit.state;
+
+            if (fails) {
+              pending.completeError(StateError('Delayed write failure'));
+            } else {
+              pending.complete();
+            }
+            await completion;
+            expect(notesCubit.state, same(closedState));
+          },
+        );
+      }
+
+      test('${action.key.name} reports failure while open', () async {
+        fakeNotesRepository.shouldThrow = true;
+        await action.value(notesCubit);
+        expect(notesCubit.state.actionStatus, NotesActionStatus.error);
+        expect(notesCubit.state.actionType, action.key);
+        expect(notesCubit.state.actionErrorMessage, contains('Failed to'));
+      });
+    }
+
+    test('close cancels the notes subscription', () async {
+      notesCubit.loadNotes();
+      expect(fakeNotesRepository.notesController.hasListener, isTrue);
+      await notesCubit.close();
+      expect(fakeNotesRepository.notesController.hasListener, isFalse);
+      final closedState = notesCubit.state;
+      fakeNotesRepository.notesController.add([note]);
+      await Future<void>.delayed(Duration.zero);
+      expect(notesCubit.state, same(closedState));
     });
 
     test('initial state has initial status and actionStatus', () {
@@ -111,25 +177,39 @@ void main() {
       expect(notesCubit.state.notes, equals(sampleNotes));
     });
 
-    test('loadNotes transitions to NotesStatus.error on stream error', () async {
-      notesCubit.loadNotes();
-      expect(notesCubit.state.status, equals(NotesStatus.loading));
+    test(
+      'loadNotes transitions to NotesStatus.error on stream error',
+      () async {
+        notesCubit.loadNotes();
+        expect(notesCubit.state.status, equals(NotesStatus.loading));
 
-      fakeNotesRepository.notesController.addError(Exception('Firestore stream error'));
-      await Future<void>.delayed(Duration.zero);
+        fakeNotesRepository.notesController.addError(
+          Exception('Firestore stream error'),
+        );
+        await Future<void>.delayed(Duration.zero);
 
-      expect(notesCubit.state.status, equals(NotesStatus.error));
-      expect(notesCubit.state.errorMessage, contains('Firestore stream error'));
-    });
+        expect(notesCubit.state.status, equals(NotesStatus.error));
+        expect(
+          notesCubit.state.errorMessage,
+          contains('Firestore stream error'),
+        );
+      },
+    );
 
-    test('loadNotes emits NotesStatus.error when watchPersonalNotes throws synchronously', () {
-      fakeNotesRepository.shouldThrowSyncOnWatch = true;
+    test(
+      'loadNotes emits NotesStatus.error when watchPersonalNotes throws synchronously',
+      () {
+        fakeNotesRepository.shouldThrowSyncOnWatch = true;
 
-      notesCubit.loadNotes();
+        notesCubit.loadNotes();
 
-      expect(notesCubit.state.status, equals(NotesStatus.error));
-      expect(notesCubit.state.errorMessage, contains('No authenticated user found.'));
-    });
+        expect(notesCubit.state.status, equals(NotesStatus.error));
+        expect(
+          notesCubit.state.errorMessage,
+          contains('No authenticated user found.'),
+        );
+      },
+    );
 
     test('addNote emits submitting then success on success', () async {
       final states = <NotesState>[];
@@ -233,53 +313,66 @@ void main() {
       await subscription.cancel();
     });
 
-    test('resetActionStatus resets actionStatus, actionType, actionError', () async {
-      fakeNotesRepository.shouldThrow = true;
-      await notesCubit.addNote(title: 'Fail', content: 'Fail');
-      await Future<void>.delayed(Duration.zero);
-      expect(notesCubit.state.actionStatus, NotesActionStatus.error);
+    test(
+      'resetActionStatus resets actionStatus, actionType, actionError',
+      () async {
+        fakeNotesRepository.shouldThrow = true;
+        await notesCubit.addNote(title: 'Fail', content: 'Fail');
+        await Future<void>.delayed(Duration.zero);
+        expect(notesCubit.state.actionStatus, NotesActionStatus.error);
 
-      notesCubit.resetActionStatus();
-      expect(notesCubit.state.actionStatus, NotesActionStatus.initial);
-      expect(notesCubit.state.actionType, isNull);
-      expect(notesCubit.state.actionErrorMessage, isNull);
-    });
+        notesCubit.resetActionStatus();
+        expect(notesCubit.state.actionStatus, NotesActionStatus.initial);
+        expect(notesCubit.state.actionType, isNull);
+        expect(notesCubit.state.actionErrorMessage, isNull);
+      },
+    );
 
-    test('subsequent successful action clears previous error and actionError', () async {
-      // 1. Fail first
-      fakeNotesRepository.shouldThrow = true;
-      await notesCubit.addNote(title: 'Fail', content: 'Fail');
-      await Future<void>.delayed(Duration.zero);
-      expect(notesCubit.state.isActionError, isTrue);
-      expect(notesCubit.state.actionErrorMessage, isNotNull);
+    test(
+      'subsequent successful action clears previous error and actionError',
+      () async {
+        // 1. Fail first
+        fakeNotesRepository.shouldThrow = true;
+        await notesCubit.addNote(title: 'Fail', content: 'Fail');
+        await Future<void>.delayed(Duration.zero);
+        expect(notesCubit.state.isActionError, isTrue);
+        expect(notesCubit.state.actionErrorMessage, isNotNull);
 
-      // 2. Now succeed
-      fakeNotesRepository.shouldThrow = false;
-      await notesCubit.addNote(title: 'Success', content: 'Content');
-      await Future<void>.delayed(Duration.zero);
+        // 2. Now succeed
+        fakeNotesRepository.shouldThrow = false;
+        await notesCubit.addNote(title: 'Success', content: 'Content');
+        await Future<void>.delayed(Duration.zero);
 
-      expect(notesCubit.state.isActionSuccess, isTrue);
-      expect(notesCubit.state.actionErrorMessage, isNull);
-      expect(notesCubit.state.errorMessage, isNull);
-    });
+        expect(notesCubit.state.isActionSuccess, isTrue);
+        expect(notesCubit.state.actionErrorMessage, isNull);
+        expect(notesCubit.state.errorMessage, isNull);
+      },
+    );
 
-    test('copyWith automatically clears errorMessage when transitioning to non-error status', () {
-      const errorState = NotesState(
-        status: NotesStatus.error,
-        errorMessage: 'Network failed',
-        actionStatus: NotesActionStatus.error,
-        actionErrorMessage: 'Action failed',
-      );
+    test(
+      'copyWith automatically clears errorMessage when transitioning to non-error status',
+      () {
+        const errorState = NotesState(
+          status: NotesStatus.error,
+          errorMessage: 'Network failed',
+          actionStatus: NotesActionStatus.error,
+          actionErrorMessage: 'Action failed',
+        );
 
-      final successState = errorState.copyWith(status: NotesStatus.success);
-      expect(successState.errorMessage, isNull);
+        final successState = errorState.copyWith(status: NotesStatus.success);
+        expect(successState.errorMessage, isNull);
 
-      final actionSuccessState = errorState.copyWith(actionStatus: NotesActionStatus.success);
-      expect(actionSuccessState.actionErrorMessage, isNull);
+        final actionSuccessState = errorState.copyWith(
+          actionStatus: NotesActionStatus.success,
+        );
+        expect(actionSuccessState.actionErrorMessage, isNull);
 
-      final actionSubmittingState = errorState.copyWith(actionStatus: NotesActionStatus.submitting);
-      expect(actionSubmittingState.actionErrorMessage, isNull);
-    });
+        final actionSubmittingState = errorState.copyWith(
+          actionStatus: NotesActionStatus.submitting,
+        );
+        expect(actionSubmittingState.actionErrorMessage, isNull);
+      },
+    );
 
     test('NotesState equality uses listEquals for notes list', () {
       final sampleNote = NoteModel(
