@@ -10,6 +10,7 @@ class FakeNotesRepository implements NotesRepository {
       StreamController<List<NoteModel>>.broadcast();
 
   bool shouldThrow = false;
+  bool shouldThrowSyncOnWatch = false;
   String? lastAddedTitle;
   String? lastAddedContent;
   String? lastAddedOwnerId;
@@ -19,8 +20,12 @@ class FakeNotesRepository implements NotesRepository {
   String? lastDeletedId;
 
   @override
-  Stream<List<NoteModel>> watchPersonalNotes({String? uid}) =>
-      notesController.stream;
+  Stream<List<NoteModel>> watchPersonalNotes({String? uid}) {
+    if (shouldThrowSyncOnWatch) {
+      throw StateError('No authenticated user found.');
+    }
+    return notesController.stream;
+  }
 
   @override
   Future<void> addNote({
@@ -104,6 +109,26 @@ void main() {
 
       expect(notesCubit.state.status, equals(NotesStatus.success));
       expect(notesCubit.state.notes, equals(sampleNotes));
+    });
+
+    test('loadNotes transitions to NotesStatus.error on stream error', () async {
+      notesCubit.loadNotes();
+      expect(notesCubit.state.status, equals(NotesStatus.loading));
+
+      fakeNotesRepository.notesController.addError(Exception('Firestore stream error'));
+      await Future<void>.delayed(Duration.zero);
+
+      expect(notesCubit.state.status, equals(NotesStatus.error));
+      expect(notesCubit.state.errorMessage, contains('Firestore stream error'));
+    });
+
+    test('loadNotes emits NotesStatus.error when watchPersonalNotes throws synchronously', () {
+      fakeNotesRepository.shouldThrowSyncOnWatch = true;
+
+      notesCubit.loadNotes();
+
+      expect(notesCubit.state.status, equals(NotesStatus.error));
+      expect(notesCubit.state.errorMessage, contains('No authenticated user found.'));
     });
 
     test('addNote emits submitting then success on success', () async {
@@ -254,6 +279,30 @@ void main() {
 
       final actionSubmittingState = errorState.copyWith(actionStatus: NotesActionStatus.submitting);
       expect(actionSubmittingState.actionErrorMessage, isNull);
+    });
+
+    test('NotesState equality uses listEquals for notes list', () {
+      final sampleNote = NoteModel(
+        id: '1',
+        ownerId: 'user1',
+        type: NoteType.personal,
+        title: 'Title',
+        content: 'Content',
+        createdAt: DateTime(2026, 1, 1),
+        updatedAt: DateTime(2026, 1, 1),
+      );
+
+      final stateA = NotesState(
+        status: NotesStatus.success,
+        notes: [sampleNote],
+      );
+      final stateB = NotesState(
+        status: NotesStatus.success,
+        notes: [sampleNote],
+      );
+
+      expect(identical(stateA.notes, stateB.notes), isFalse);
+      expect(stateA, equals(stateB));
     });
   });
 }
