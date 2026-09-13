@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../shared/models/models.dart';
 
 /// Possible statuses for the notes list.
@@ -129,7 +131,7 @@ class NotesState {
       other is NotesState &&
           runtimeType == other.runtimeType &&
           status == other.status &&
-          notes == other.notes &&
+          listEquals(notes, other.notes) &&
           errorMessage == other.errorMessage &&
           actionStatus == other.actionStatus &&
           actionType == other.actionType &&

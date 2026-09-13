@@ -16,13 +16,12 @@ import 'notes_state.dart';
 /// The cubit subscribes to a real-time Firestore stream via [NotesRepository]
 /// so that the UI automatically reflects any changes (add / update / delete).
 class NotesCubit extends Cubit<NotesState> {
-  final NotesRepository _notesRepository;
+  final NotesRepository notesRepository;
   StreamSubscription<List<NoteModel>>? _notesSubscription;
 
   NotesCubit({
-    required NotesRepository notesRepository,
-  })  : _notesRepository = notesRepository,
-        super(const NotesState());
+    required this.notesRepository,
+  }) : super(const NotesState());
 
   // ---------------------------------------------------------------------------
   // Load / Watch
@@ -39,21 +38,28 @@ class NotesCubit extends Cubit<NotesState> {
     // Cancel any previous subscription to avoid duplicates.
     _notesSubscription?.cancel();
 
-    _notesSubscription = _notesRepository.watchPersonalNotes(uid: uid).listen(
-      (notes) {
-        emit(state.copyWith(
-          status: NotesStatus.success,
-          notes: notes,
-          clearError: true,
-        ));
-      },
-      onError: (Object error) {
-        emit(state.copyWith(
-          status: NotesStatus.error,
-          errorMessage: error.toString(),
-        ));
-      },
-    );
+    try {
+      _notesSubscription = notesRepository.watchPersonalNotes(uid: uid).listen(
+        (notes) {
+          emit(state.copyWith(
+            status: NotesStatus.success,
+            notes: notes,
+            clearError: true,
+          ));
+        },
+        onError: (Object error) {
+          emit(state.copyWith(
+            status: NotesStatus.error,
+            errorMessage: error.toString(),
+          ));
+        },
+      );
+    } catch (e) {
+      emit(state.copyWith(
+        status: NotesStatus.error,
+        errorMessage: e.toString(),
+      ));
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -93,7 +99,7 @@ class NotesCubit extends Cubit<NotesState> {
     ));
 
     try {
-      await _notesRepository.addNote(
+      await notesRepository.addNote(
         title: title,
         content: content,
         ownerId: ownerId,
@@ -130,7 +136,7 @@ class NotesCubit extends Cubit<NotesState> {
     ));
 
     try {
-      await _notesRepository.updateNote(note);
+      await notesRepository.updateNote(note);
       emit(state.copyWith(
         actionStatus: NotesActionStatus.success,
         actionType: NotesActionType.update,
@@ -162,7 +168,7 @@ class NotesCubit extends Cubit<NotesState> {
     ));
 
     try {
-      await _notesRepository.toggleNoteDone(noteId: noteId, isDone: isDone);
+      await notesRepository.toggleNoteDone(noteId: noteId, isDone: isDone);
       emit(state.copyWith(
         actionStatus: NotesActionStatus.success,
         actionType: NotesActionType.toggleDone,
@@ -195,7 +201,7 @@ class NotesCubit extends Cubit<NotesState> {
     ));
 
     try {
-      await _notesRepository.deleteNote(noteId);
+      await notesRepository.deleteNote(noteId);
       emit(state.copyWith(
         actionStatus: NotesActionStatus.success,
         actionType: NotesActionType.delete,
