@@ -303,6 +303,8 @@ void main() {
 
       expect(identical(stateA.notes, stateB.notes), isFalse);
       expect(stateA, equals(stateB));
+      expect(stateA.hashCode, equals(stateB.hashCode));
+      expect({stateA}.contains(stateB), isTrue);
     });
   });
 }

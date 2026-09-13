@@ -140,7 +140,7 @@ class NotesState {
   @override
   int get hashCode =>
       status.hashCode ^
-      notes.hashCode ^
+      Object.hashAll(notes) ^
       errorMessage.hashCode ^
       actionStatus.hashCode ^
       actionType.hashCode ^
