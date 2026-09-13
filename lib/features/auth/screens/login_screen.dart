@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../core/theme/app_colors.dart';
-import '../core/theme/theme.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
