@@ -149,10 +149,10 @@ packages:
     dependency: "direct main"
     description:
       name: device_preview_plus
-      sha256: f09ab3ead24ed9b9d7a7a83d6bc96aff6d70bb6513958de837b3db85362c8b6e
+      sha256: "6ee6f185fa9b92e7b3f5a6f41bf651479062276c301dc0597d55377c8982c23b"
       url: "https://pub.dev"
     source: hosted
-    version: "2.9.2"
+    version: "2.9.0"
   fake_async:
     dependency: transitive
     description:
@@ -804,4 +804,4 @@ packages:
     version: "3.1.4"
 sdks:
   dart: ">=3.12.2 <4.0.0"
-  flutter: ">=3.47.2"
+  flutter: ">=3.47.0"

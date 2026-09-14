@@ -51,6 +51,10 @@ class FirestoreMohsensRepository implements MohsensRepository {
     final isMohsen = entry.type == MohsenType.mohsen;
     final statField = isMohsen ? 'mohsensCount' : 'warningsCount';
 
+    final entryLabel = entry.title.trim().isNotEmpty
+        ? entry.title.trim()
+        : entry.reason.trim();
+
     final notification = NotificationModel(
       id: notifRef.id,
       actorId: entry.addedBy,
@@ -61,7 +65,7 @@ class FirestoreMohsensRepository implements MohsensRepository {
           : NotificationType.warningAdded,
       title: notificationTitle ?? (isMohsen ? 'New Mohsen' : 'New Warning'),
       message: notificationMessage ??
-          '$actorName added ${isMohsen ? "mohsen" : "warning"}: ${entry.reason}',
+          '$actorName added ${isMohsen ? "mohsen" : "warning"}: $entryLabel',
       committeeId: committeeId,
       targetUserId: memberId,
       createdAt: DateTime.now(),

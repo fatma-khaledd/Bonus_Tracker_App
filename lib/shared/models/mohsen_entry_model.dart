@@ -23,6 +23,7 @@ class MohsenEntryModel {
   final String? memberId;
   final String? committeeId;
   final MohsenType type;
+  final String title;
   final num value;
   final String reason;
   final String addedBy;
@@ -34,6 +35,7 @@ class MohsenEntryModel {
     this.memberId,
     this.committeeId,
     required this.type,
+    this.title = '',
     required this.value,
     required this.reason,
     required this.addedBy,
@@ -52,6 +54,7 @@ class MohsenEntryModel {
       memberId: memberId ?? map['memberId'] as String?,
       committeeId: committeeId ?? map['committeeId'] as String?,
       type: MohsenType.fromString(map['type'] as String?),
+      title: map['title'] as String? ?? '',
       value: (map['value'] as num?) ?? 0,
       reason: map['reason'] as String? ?? '',
       addedBy: map['addedBy'] as String? ?? '',
@@ -65,6 +68,7 @@ class MohsenEntryModel {
       if (memberId != null) 'memberId': memberId,
       if (committeeId != null) 'committeeId': committeeId,
       'type': type.value,
+      "title": title,
       'value': value,
       'reason': reason,
       'addedBy': addedBy,
@@ -78,6 +82,7 @@ class MohsenEntryModel {
     String? memberId,
     String? committeeId,
     MohsenType? type,
+    String? title,
     num? value,
     String? reason,
     String? addedBy,
@@ -89,6 +94,7 @@ class MohsenEntryModel {
       memberId: memberId ?? this.memberId,
       committeeId: committeeId ?? this.committeeId,
       type: type ?? this.type,
+      title: title ?? this.title,
       value: value ?? this.value,
       reason: reason ?? this.reason,
       addedBy: addedBy ?? this.addedBy,
@@ -106,6 +112,7 @@ class MohsenEntryModel {
           memberId == other.memberId &&
           committeeId == other.committeeId &&
           type == other.type &&
+          title == other.title &&
           value == other.value &&
           reason == other.reason &&
           addedBy == other.addedBy &&
@@ -118,6 +125,7 @@ class MohsenEntryModel {
       memberId.hashCode ^
       committeeId.hashCode ^
       type.hashCode ^
+      title.hashCode ^
       value.hashCode ^
       reason.hashCode ^
       addedBy.hashCode ^
@@ -126,5 +134,5 @@ class MohsenEntryModel {
 
   @override
   String toString() =>
-      'MohsenEntryModel(id: $id, memberId: $memberId, committeeId: $committeeId, type: ${type.value}, value: $value, reason: $reason, addedBy: $addedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
+      'MohsenEntryModel(id: $id, memberId: $memberId, committeeId: $committeeId, type: ${type.value}, title: $title, value: $value, reason: $reason, addedBy: $addedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
 }

@@ -158,6 +158,7 @@ void main() {
         memberId: 'u1',
         committeeId: 'c1',
         type: MohsenType.mohsen,
+        title: 'Outstanding performance',
         value: 5,
         reason: 'Excellent work',
         addedBy: 'admin1',
@@ -177,6 +178,7 @@ void main() {
       final history =
           await repo.getMohsensHistory(committeeId: 'c1', uid: 'u1');
       expect(history.length, 1);
+      expect(history.first.title, 'Outstanding performance');
       expect(history.first.reason, 'Excellent work');
     });
 
