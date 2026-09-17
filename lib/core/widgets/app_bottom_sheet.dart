@@ -74,10 +74,7 @@ class AppBottomSheet extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimens.md),
                 Expanded(
-                  child: AppButton.secondary(
-                    text: doneText,
-                    onPressed: onDone,
-                  ),
+                  child: AppButton.secondary(text: doneText, onPressed: onDone),
                 ),
               ],
             ),

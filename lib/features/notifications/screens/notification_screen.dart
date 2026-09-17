@@ -24,14 +24,8 @@ class NotificationsScreen extends StatelessWidget {
       create: (_) => NotificationCubit(
         notificationsRepository: FirestoreNotificationsRepository(),
         memberRepository: FirestoreMembersRepository(),
-      )..loadNotifications(
-          committeeId: committeeId,
-          uid: uid,
-        ),
-      child: NotificationView(
-        committeeId: committeeId,
-        uid: uid,
-      ),
+      )..loadNotifications(committeeId: committeeId, uid: uid),
+      child: NotificationView(committeeId: committeeId, uid: uid),
     );
   }
 }
@@ -49,9 +43,7 @@ class NotificationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notifications'),
-      ),
+      appBar: AppBar(title: const Text('Notifications')),
       body: BlocBuilder<NotificationCubit, NotificationState>(
         builder: (context, state) {
           if (state is NotificationLoading || state is NotificationInitial) {
@@ -82,9 +74,9 @@ class NotificationView extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         context.read<NotificationCubit>().loadNotifications(
-                              committeeId: committeeId,
-                              uid: uid,
-                            );
+                          committeeId: committeeId,
+                          uid: uid,
+                        );
                       },
                       icon: const Icon(Icons.refresh),
                       label: const Text('Retry'),

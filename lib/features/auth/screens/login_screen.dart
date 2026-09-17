@@ -11,7 +11,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   LoginTheme buildTheme() {
     return LoginTheme(
       errorColor: AppColors.error,

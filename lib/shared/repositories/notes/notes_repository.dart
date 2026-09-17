@@ -19,10 +19,7 @@ abstract class NotesRepository {
   Future<void> updateNote(NoteModel note);
 
   /// Toggles the `isDone` flag on a note.
-  Future<void> toggleNoteDone({
-    required String noteId,
-    required bool isDone,
-  });
+  Future<void> toggleNoteDone({required String noteId, required bool isDone});
 
   /// Permanently deletes a note by its [noteId].
   Future<void> deleteNote(String noteId);

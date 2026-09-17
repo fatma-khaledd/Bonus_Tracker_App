@@ -7,6 +7,7 @@ class ProfileInfoTile extends StatelessWidget {
   final String value;
 
   const ProfileInfoTile({
+    super.key,
     required this.icon,
     required this.title,
     required this.value,
@@ -26,19 +27,29 @@ class ProfileInfoTile extends StatelessWidget {
         children: [
           Icon(icon, color: AppColors.iconDefault),
           const SizedBox(width: 14),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(fontSize: 12, color: AppColors.primaryDark),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  softWrap: true,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.primaryDark,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  softWrap: true,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

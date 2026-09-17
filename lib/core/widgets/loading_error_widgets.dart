@@ -10,11 +10,7 @@ class LoadingWidget extends StatelessWidget {
   final double size;
   final Color? color;
 
-  const LoadingWidget({
-    super.key,
-    this.size = 40,
-    this.color,
-  });
+  const LoadingWidget({super.key, this.size = 40, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +57,7 @@ class AppErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon ?? Icons.error_outline,
-              size: 56,
-              color: AppColors.error,
-            ),
+            Icon(icon ?? Icons.error_outline, size: 56, color: AppColors.error),
             const SizedBox(height: AppDimens.lg),
             Text(
               message,

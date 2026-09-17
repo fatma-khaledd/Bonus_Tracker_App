@@ -8,6 +8,7 @@ class ActionTile extends StatelessWidget {
   final Color? textColor;
 
   const ActionTile({
+    super.key,
     required this.icon,
     required this.title,
     required this.onTap,
@@ -27,14 +28,18 @@ class ActionTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color:AppColors.iconDefault),
+            Icon(icon, color: AppColors.iconDefault),
             const SizedBox(width: 14),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: textColor,
+            Expanded(
+              child: Text(
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
               ),
             ),
             const Spacer(),

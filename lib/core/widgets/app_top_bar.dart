@@ -39,19 +39,16 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         child: Row(
           children: [
-            // App Sun Icon
-            const Icon(
-              Icons.wb_sunny,
-              color: AppColors.primary,
-              size: AppDimens.iconLg,
-            ),
+            // App OSC Logo
+            Image.asset('assets/images/osc_icon.png'),
+
             const SizedBox(width: AppDimens.sm),
 
             // Dark Mode Toggle Icon
             GestureDetector(
               onTap: onThemeToggle,
               child: Icon(
-                isDarkMode ? Icons.dark_mode : Icons.dark_mode_outlined,
+                isDarkMode ? Icons.dark_mode : Icons.wb_sunny,
                 color: AppColors.secondary,
                 size: AppDimens.iconMd,
               ),

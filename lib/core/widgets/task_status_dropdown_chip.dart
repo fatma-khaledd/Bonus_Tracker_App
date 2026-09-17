@@ -32,17 +32,19 @@ class TaskStatusDropdownChip extends StatelessWidget {
     return PopupMenuButton<String>(
       onSelected: onChanged,
       itemBuilder: (context) => options
-          .map((option) => PopupMenuItem<String>(
-                value: option,
-                child: Text(
-                  option,
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: option == currentStatus
-                        ? FontWeight.w700
-                        : FontWeight.w400,
-                  ),
+          .map(
+            (option) => PopupMenuItem<String>(
+              value: option,
+              child: Text(
+                option,
+                style: AppTextStyles.body.copyWith(
+                  fontWeight: option == currentStatus
+                      ? FontWeight.w700
+                      : FontWeight.w400,
                 ),
-              ))
+              ),
+            ),
+          )
           .toList(),
       child: Container(
         padding: const EdgeInsets.symmetric(

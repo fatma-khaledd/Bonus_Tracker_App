@@ -8,7 +8,7 @@ class FirestoreMeetingsRepository implements MeetingsRepository {
   final FirebaseFirestore _firestore;
 
   FirestoreMeetingsRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<void> addMeeting({
@@ -24,8 +24,9 @@ class FirestoreMeetingsRepository implements MeetingsRepository {
         ? _firestore.doc(FirestorePaths.meeting(committeeId, meeting.id))
         : _firestore.collection(FirestorePaths.meetings(committeeId)).doc();
 
-    final notifRef =
-        _firestore.collection(FirestorePaths.notifications()).doc();
+    final notifRef = _firestore
+        .collection(FirestorePaths.notifications())
+        .doc();
 
     final notification = NotificationModel(
       id: notifRef.id,
@@ -34,7 +35,8 @@ class FirestoreMeetingsRepository implements MeetingsRepository {
       actorRole: actorRole,
       type: NotificationType.meetingAdded,
       title: notificationTitle ?? 'New Meeting: ${meeting.title}',
-      message: notificationMessage ??
+      message:
+          notificationMessage ??
           (meeting.description.isNotEmpty
               ? meeting.description
               : 'A new meeting has been scheduled'),
@@ -49,5 +51,23 @@ class FirestoreMeetingsRepository implements MeetingsRepository {
     batch.set(notifRef, notifMap);
 
     await batch.commit();
+  }
+
+  @override
+  Future<List<MeetingModel>> getMeetings(String committeeId) async {
+    final snap = await _firestore
+        .collection(FirestorePaths.meetings(committeeId))
+        .orderBy('date', descending: false)
+        .get();
+
+    return snap.docs
+        .map(
+          (doc) => MeetingModel.fromMap(
+            doc.data(),
+            id: doc.id,
+            committeeId: committeeId,
+          ),
+        )
+        .toList();
   }
 }

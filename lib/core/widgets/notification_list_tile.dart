@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 import 'avatar_placeholder.dart';
@@ -46,15 +45,9 @@ class NotificationListTile extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        name,
-                        style: AppTextStyles.bodyBold,
-                      ),
+                      Text(name, style: AppTextStyles.bodyBold),
                       const SizedBox(width: AppDimens.sm),
-                      Text(
-                        role,
-                        style: AppTextStyles.notificationRole,
-                      ),
+                      Text(role, style: AppTextStyles.notificationRole),
                     ],
                   ),
                   const SizedBox(height: AppDimens.xs),
@@ -82,4 +75,3 @@ class NotificationListTile extends StatelessWidget {
     );
   }
 }
-

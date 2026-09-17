@@ -28,6 +28,7 @@ class CommitteeChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.symmetric(
           horizontal: AppDimens.lg,
           vertical: AppDimens.sm,

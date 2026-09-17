@@ -30,8 +30,7 @@ class NotificationCubit extends Cubit<NotificationState> {
         uid: uid,
       );
 
-      final lastSeenNotificationsAt =
-          member?.lastSeenNotificationsAt;
+      final lastSeenNotificationsAt = member?.lastSeenNotificationsAt;
 
       await memberRepository.markNotificationsSeen(
         committeeId: committeeId,
@@ -41,30 +40,22 @@ class NotificationCubit extends Cubit<NotificationState> {
       await _subscription?.cancel();
 
       _subscription = notificationsRepository
-          .watchNotifications(
-            committeeId: committeeId,
-            uid: uid,
-          )
+          .watchNotifications(committeeId: committeeId, uid: uid)
           .listen(
-        (notifications) {
-          emit(
-            NotificationLoaded(
-              notifications: notifications,
-              lastSeenNotificationsAt:
-                  lastSeenNotificationsAt,
-            ),
+            (notifications) {
+              emit(
+                NotificationLoaded(
+                  notifications: notifications,
+                  lastSeenNotificationsAt: lastSeenNotificationsAt,
+                ),
+              );
+            },
+            onError: (error) {
+              emit(NotificationError(error.toString()));
+            },
           );
-        },
-        onError: (error) {
-          emit(
-            NotificationError(error.toString()),
-          );
-        },
-      );
     } catch (e) {
-      emit(
-        NotificationError(e.toString()),
-      );
+      emit(NotificationError(e.toString()));
     }
   }
 

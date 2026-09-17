@@ -103,10 +103,12 @@ class NotesState {
     String? actionErrorMessage,
     bool clearActionError = false,
   }) {
-    final shouldClearError = clearError ||
+    final shouldClearError =
+        clearError ||
         (status != null && status != NotesStatus.error && errorMessage == null);
 
-    final shouldClearActionError = clearActionError ||
+    final shouldClearActionError =
+        clearActionError ||
         (actionStatus != null &&
             actionStatus != NotesActionStatus.error &&
             actionErrorMessage == null);
@@ -114,7 +116,9 @@ class NotesState {
     return NotesState(
       status: status ?? this.status,
       notes: notes ?? this.notes,
-      errorMessage: shouldClearError ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: shouldClearError
+          ? null
+          : (errorMessage ?? this.errorMessage),
       actionStatus: actionStatus ?? this.actionStatus,
       actionType: clearActionType ? null : (actionType ?? this.actionType),
       actionErrorMessage: shouldClearActionError

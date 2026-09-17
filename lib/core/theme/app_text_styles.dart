@@ -73,7 +73,7 @@ abstract class AppTextStyles {
 
   // Labels and Cards
   static TextStyle get statLabel => GoogleFonts.cairo(
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
   );

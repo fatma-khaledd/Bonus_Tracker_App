@@ -208,52 +208,65 @@ void main() {
       await subscription.cancel();
     });
 
-    test('resetActionStatus resets actionStatus, actionType, actionError', () async {
-      fakeNotesRepository.shouldThrow = true;
-      await notesCubit.addNote(title: 'Fail', content: 'Fail');
-      await Future<void>.delayed(Duration.zero);
-      expect(notesCubit.state.actionStatus, NotesActionStatus.error);
+    test(
+      'resetActionStatus resets actionStatus, actionType, actionError',
+      () async {
+        fakeNotesRepository.shouldThrow = true;
+        await notesCubit.addNote(title: 'Fail', content: 'Fail');
+        await Future<void>.delayed(Duration.zero);
+        expect(notesCubit.state.actionStatus, NotesActionStatus.error);
 
-      notesCubit.resetActionStatus();
-      expect(notesCubit.state.actionStatus, NotesActionStatus.initial);
-      expect(notesCubit.state.actionType, isNull);
-      expect(notesCubit.state.actionErrorMessage, isNull);
-    });
+        notesCubit.resetActionStatus();
+        expect(notesCubit.state.actionStatus, NotesActionStatus.initial);
+        expect(notesCubit.state.actionType, isNull);
+        expect(notesCubit.state.actionErrorMessage, isNull);
+      },
+    );
 
-    test('subsequent successful action clears previous error and actionError', () async {
-      // 1. Fail first
-      fakeNotesRepository.shouldThrow = true;
-      await notesCubit.addNote(title: 'Fail', content: 'Fail');
-      await Future<void>.delayed(Duration.zero);
-      expect(notesCubit.state.isActionError, isTrue);
-      expect(notesCubit.state.actionErrorMessage, isNotNull);
+    test(
+      'subsequent successful action clears previous error and actionError',
+      () async {
+        // 1. Fail first
+        fakeNotesRepository.shouldThrow = true;
+        await notesCubit.addNote(title: 'Fail', content: 'Fail');
+        await Future<void>.delayed(Duration.zero);
+        expect(notesCubit.state.isActionError, isTrue);
+        expect(notesCubit.state.actionErrorMessage, isNotNull);
 
-      // 2. Now succeed
-      fakeNotesRepository.shouldThrow = false;
-      await notesCubit.addNote(title: 'Success', content: 'Content');
-      await Future<void>.delayed(Duration.zero);
+        // 2. Now succeed
+        fakeNotesRepository.shouldThrow = false;
+        await notesCubit.addNote(title: 'Success', content: 'Content');
+        await Future<void>.delayed(Duration.zero);
 
-      expect(notesCubit.state.isActionSuccess, isTrue);
-      expect(notesCubit.state.actionErrorMessage, isNull);
-      expect(notesCubit.state.errorMessage, isNull);
-    });
+        expect(notesCubit.state.isActionSuccess, isTrue);
+        expect(notesCubit.state.actionErrorMessage, isNull);
+        expect(notesCubit.state.errorMessage, isNull);
+      },
+    );
 
-    test('copyWith automatically clears errorMessage when transitioning to non-error status', () {
-      const errorState = NotesState(
-        status: NotesStatus.error,
-        errorMessage: 'Network failed',
-        actionStatus: NotesActionStatus.error,
-        actionErrorMessage: 'Action failed',
-      );
+    test(
+      'copyWith automatically clears errorMessage when transitioning to non-error status',
+      () {
+        const errorState = NotesState(
+          status: NotesStatus.error,
+          errorMessage: 'Network failed',
+          actionStatus: NotesActionStatus.error,
+          actionErrorMessage: 'Action failed',
+        );
 
-      final successState = errorState.copyWith(status: NotesStatus.success);
-      expect(successState.errorMessage, isNull);
+        final successState = errorState.copyWith(status: NotesStatus.success);
+        expect(successState.errorMessage, isNull);
 
-      final actionSuccessState = errorState.copyWith(actionStatus: NotesActionStatus.success);
-      expect(actionSuccessState.actionErrorMessage, isNull);
+        final actionSuccessState = errorState.copyWith(
+          actionStatus: NotesActionStatus.success,
+        );
+        expect(actionSuccessState.actionErrorMessage, isNull);
 
-      final actionSubmittingState = errorState.copyWith(actionStatus: NotesActionStatus.submitting);
-      expect(actionSubmittingState.actionErrorMessage, isNull);
-    });
+        final actionSubmittingState = errorState.copyWith(
+          actionStatus: NotesActionStatus.submitting,
+        );
+        expect(actionSubmittingState.actionErrorMessage, isNull);
+      },
+    );
   });
 }

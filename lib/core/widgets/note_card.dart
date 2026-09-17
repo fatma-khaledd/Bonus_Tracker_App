@@ -68,10 +68,7 @@ class NoteCard extends StatelessWidget {
                   SizedBox(
                     width: 28,
                     height: 28,
-                    child: Checkbox(
-                      value: isDone,
-                      onChanged: onDoneChanged,
-                    ),
+                    child: Checkbox(value: isDone, onChanged: onDoneChanged),
                   ),
               ],
             ),

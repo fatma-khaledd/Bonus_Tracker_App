@@ -8,7 +8,7 @@ class FirestoreMembersRepository implements MembersRepository {
   final FirebaseFirestore _firestore;
 
   FirestoreMembersRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
   @override
   Future<MemberModel?> getMember({
     required String committeeId,
@@ -36,11 +36,13 @@ class FirestoreMembersRepository implements MembersRepository {
         .get();
 
     return snap.docs
-        .map((doc) => MemberModel.fromMap(
-              doc.data(),
-              userId: doc.id,
-              committeeId: committeeId,
-            ))
+        .map(
+          (doc) => MemberModel.fromMap(
+            doc.data(),
+            userId: doc.id,
+            committeeId: committeeId,
+          ),
+        )
         .toList();
   }
 

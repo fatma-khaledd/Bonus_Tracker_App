@@ -66,10 +66,7 @@ class MemberProgressListItem extends StatelessWidget {
             _CountLabel(label: 'Mohsens', count: mohsensCount),
             const SizedBox(width: AppDimens.md),
             _CountLabel(label: 'Warnings', count: warningsCount),
-            const Icon(
-              Icons.chevron_right,
-              color: AppColors.textSecondary,
-            ),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),
       ),
@@ -90,9 +87,7 @@ class _CountLabel extends StatelessWidget {
         Text(label, style: AppTextStyles.bodySmall),
         Text(
           count.toString(),
-          style: AppTextStyles.bodyBold.copyWith(
-            color: AppColors.primary,
-          ),
+          style: AppTextStyles.bodyBold.copyWith(color: AppColors.primary),
         ),
       ],
     );

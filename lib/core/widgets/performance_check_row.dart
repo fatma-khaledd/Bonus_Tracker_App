@@ -35,13 +35,7 @@ class PerformanceCheckRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppDimens.xs),
       child: Row(
         children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              label,
-              style: AppTextStyles.bodyBold,
-            ),
-          ),
+          Expanded(flex: 3, child: Text(label, style: AppTextStyles.bodyBold)),
           Expanded(
             flex: 2,
             child: Center(

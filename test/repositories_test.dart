@@ -63,6 +63,7 @@ class MockMohsensRepository implements MohsensRepository {
 }
 
 class MockMeetingsRepository implements MeetingsRepository {
+  final List<MeetingModel> meetings = [];
   MeetingModel? lastAddedMeeting;
 
   @override
@@ -75,10 +76,17 @@ class MockMeetingsRepository implements MeetingsRepository {
     String? notificationMessage,
   }) async {
     lastAddedMeeting = meeting;
+    meetings.add(meeting);
+  }
+
+  @override
+  Future<List<MeetingModel>> getMeetings(String committeeId) async {
+    return meetings.where((m) => m.committeeId == committeeId).toList();
   }
 }
 
 class MockEventsRepository implements EventsRepository {
+  final List<EventModel> events = [];
   EventModel? lastAddedEvent;
 
   @override
@@ -91,6 +99,12 @@ class MockEventsRepository implements EventsRepository {
     String? notificationMessage,
   }) async {
     lastAddedEvent = event;
+    events.add(event);
+  }
+
+  @override
+  Future<List<EventModel>> getEvents(String committeeId) async {
+    return events.where((e) => e.committeeId == committeeId).toList();
   }
 }
 
@@ -174,8 +188,10 @@ void main() {
       );
 
       expect(repo.addMohsenCalled, isTrue);
-      final history =
-          await repo.getMohsensHistory(committeeId: 'c1', uid: 'u1');
+      final history = await repo.getMohsensHistory(
+        committeeId: 'c1',
+        uid: 'u1',
+      );
       expect(history.length, 1);
       expect(history.first.reason, 'Excellent work');
     });
@@ -184,6 +200,7 @@ void main() {
       final repo = MockMeetingsRepository();
       final meeting = MeetingModel(
         id: 'm1',
+        committeeId: 'c1',
         title: 'Weekly Sync',
         description: 'Sync meeting description',
         date: DateTime(2026, 9, 10),
@@ -202,12 +219,17 @@ void main() {
       expect(repo.lastAddedMeeting, isNotNull);
       expect(repo.lastAddedMeeting!.title, 'Weekly Sync');
       expect(repo.lastAddedMeeting!.description, 'Sync meeting description');
+
+      final meetingsList = await repo.getMeetings('c1');
+      expect(meetingsList.length, 1);
+      expect(meetingsList.first.title, 'Weekly Sync');
     });
 
     test('EventsRepository mock implementation fulfills contract', () async {
       final repo = MockEventsRepository();
       final event = EventModel(
         id: 'ev1',
+        committeeId: 'c1',
         title: 'Orientation Day',
         description: 'Welcome new members',
         date: DateTime(2026, 9, 15),
@@ -225,30 +247,36 @@ void main() {
 
       expect(repo.lastAddedEvent, isNotNull);
       expect(repo.lastAddedEvent!.title, 'Orientation Day');
+
+      final eventsList = await repo.getEvents('c1');
+      expect(eventsList.length, 1);
+      expect(eventsList.first.title, 'Orientation Day');
     });
 
-    test('NotificationsRepository mock implementation fulfills contract',
-        () async {
-      final repo = MockNotificationsRepository();
-      final notif = NotificationModel(
-        id: 'n1',
-        actorId: 'a1',
-        actorName: 'HR Team',
-        actorRole: 'hr',
-        type: NotificationType.mohsenAdded,
-        title: 'New Mohsen',
-        message: 'You received +5',
-        committeeId: 'c1',
-        createdAt: DateTime(2026, 9, 7),
-      );
+    test(
+      'NotificationsRepository mock implementation fulfills contract',
+      () async {
+        final repo = MockNotificationsRepository();
+        final notif = NotificationModel(
+          id: 'n1',
+          actorId: 'a1',
+          actorName: 'HR Team',
+          actorRole: 'hr',
+          type: NotificationType.mohsenAdded,
+          title: 'New Mohsen',
+          message: 'You received +5',
+          committeeId: 'c1',
+          createdAt: DateTime(2026, 9, 7),
+        );
 
-      expectLater(
-        repo.watchNotifications(committeeId: 'c1', uid: 'u1'),
-        emits([notif]),
-      );
+        expectLater(
+          repo.watchNotifications(committeeId: 'c1', uid: 'u1'),
+          emits([notif]),
+        );
 
-      repo.controller.add([notif]);
-    });
+        repo.controller.add([notif]);
+      },
+    );
 
     test('StatsRepository mock implementation fulfills contract', () async {
       final repo = MockStatsRepository();

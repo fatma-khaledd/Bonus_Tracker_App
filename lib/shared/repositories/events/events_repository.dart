@@ -9,4 +9,5 @@ abstract class EventsRepository {
     String? notificationTitle,
     String? notificationMessage,
   });
+  Future<List<EventModel>> getEvents(String committeeId);
 }

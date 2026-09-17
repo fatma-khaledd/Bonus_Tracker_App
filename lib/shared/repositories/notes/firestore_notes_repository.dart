@@ -12,11 +12,9 @@ class FirestoreNotesRepository implements NotesRepository {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
 
-  FirestoreNotesRepository({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+  FirestoreNotesRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   String _resolveUid(String? uid) {
     if (uid != null && uid.isNotEmpty) return uid;

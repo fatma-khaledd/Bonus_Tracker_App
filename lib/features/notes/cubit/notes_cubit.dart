@@ -19,10 +19,9 @@ class NotesCubit extends Cubit<NotesState> {
   final NotesRepository _notesRepository;
   StreamSubscription<List<NoteModel>>? _notesSubscription;
 
-  NotesCubit({
-    required NotesRepository notesRepository,
-  })  : _notesRepository = notesRepository,
-        super(const NotesState());
+  NotesCubit({required NotesRepository notesRepository})
+    : _notesRepository = notesRepository,
+      super(const NotesState());
 
   // ---------------------------------------------------------------------------
   // Load / Watch
@@ -39,21 +38,27 @@ class NotesCubit extends Cubit<NotesState> {
     // Cancel any previous subscription to avoid duplicates.
     _notesSubscription?.cancel();
 
-    _notesSubscription = _notesRepository.watchPersonalNotes(uid: uid).listen(
-      (notes) {
-        emit(state.copyWith(
-          status: NotesStatus.success,
-          notes: notes,
-          clearError: true,
-        ));
-      },
-      onError: (Object error) {
-        emit(state.copyWith(
-          status: NotesStatus.error,
-          errorMessage: error.toString(),
-        ));
-      },
-    );
+    _notesSubscription = _notesRepository
+        .watchPersonalNotes(uid: uid)
+        .listen(
+          (notes) {
+            emit(
+              state.copyWith(
+                status: NotesStatus.success,
+                notes: notes,
+                clearError: true,
+              ),
+            );
+          },
+          onError: (Object error) {
+            emit(
+              state.copyWith(
+                status: NotesStatus.error,
+                errorMessage: error.toString(),
+              ),
+            );
+          },
+        );
   }
 
   // ---------------------------------------------------------------------------
@@ -65,11 +70,13 @@ class NotesCubit extends Cubit<NotesState> {
   /// Typically called by the UI after handling an action event (e.g. after
   /// closing a bottom sheet or displaying a SnackBar).
   void resetActionStatus() {
-    emit(state.copyWith(
-      actionStatus: NotesActionStatus.initial,
-      clearActionType: true,
-      clearActionError: true,
-    ));
+    emit(
+      state.copyWith(
+        actionStatus: NotesActionStatus.initial,
+        clearActionType: true,
+        clearActionError: true,
+      ),
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -85,12 +92,14 @@ class NotesCubit extends Cubit<NotesState> {
     required String content,
     String? ownerId,
   }) async {
-    emit(state.copyWith(
-      actionStatus: NotesActionStatus.submitting,
-      actionType: NotesActionType.add,
-      clearActionError: true,
-      clearError: true,
-    ));
+    emit(
+      state.copyWith(
+        actionStatus: NotesActionStatus.submitting,
+        actionType: NotesActionType.add,
+        clearActionError: true,
+        clearError: true,
+      ),
+    );
 
     try {
       await _notesRepository.addNote(
@@ -98,18 +107,22 @@ class NotesCubit extends Cubit<NotesState> {
         content: content,
         ownerId: ownerId,
       );
-      emit(state.copyWith(
-        actionStatus: NotesActionStatus.success,
-        actionType: NotesActionType.add,
-        clearActionError: true,
-        clearError: true,
-      ));
+      emit(
+        state.copyWith(
+          actionStatus: NotesActionStatus.success,
+          actionType: NotesActionType.add,
+          clearActionError: true,
+          clearError: true,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        actionStatus: NotesActionStatus.error,
-        actionType: NotesActionType.add,
-        actionErrorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          actionStatus: NotesActionStatus.error,
+          actionType: NotesActionType.add,
+          actionErrorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -122,27 +135,33 @@ class NotesCubit extends Cubit<NotesState> {
   /// Emits [NotesActionStatus.submitting], then [NotesActionStatus.success] on
   /// success, or [NotesActionStatus.error] on failure.
   Future<void> updateNote(NoteModel note) async {
-    emit(state.copyWith(
-      actionStatus: NotesActionStatus.submitting,
-      actionType: NotesActionType.update,
-      clearActionError: true,
-      clearError: true,
-    ));
-
-    try {
-      await _notesRepository.updateNote(note);
-      emit(state.copyWith(
-        actionStatus: NotesActionStatus.success,
+    emit(
+      state.copyWith(
+        actionStatus: NotesActionStatus.submitting,
         actionType: NotesActionType.update,
         clearActionError: true,
         clearError: true,
-      ));
+      ),
+    );
+
+    try {
+      await _notesRepository.updateNote(note);
+      emit(
+        state.copyWith(
+          actionStatus: NotesActionStatus.success,
+          actionType: NotesActionType.update,
+          clearActionError: true,
+          clearError: true,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        actionStatus: NotesActionStatus.error,
-        actionType: NotesActionType.update,
-        actionErrorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          actionStatus: NotesActionStatus.error,
+          actionType: NotesActionType.update,
+          actionErrorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -154,27 +173,33 @@ class NotesCubit extends Cubit<NotesState> {
     required String noteId,
     required bool isDone,
   }) async {
-    emit(state.copyWith(
-      actionStatus: NotesActionStatus.submitting,
-      actionType: NotesActionType.toggleDone,
-      clearActionError: true,
-      clearError: true,
-    ));
-
-    try {
-      await _notesRepository.toggleNoteDone(noteId: noteId, isDone: isDone);
-      emit(state.copyWith(
-        actionStatus: NotesActionStatus.success,
+    emit(
+      state.copyWith(
+        actionStatus: NotesActionStatus.submitting,
         actionType: NotesActionType.toggleDone,
         clearActionError: true,
         clearError: true,
-      ));
+      ),
+    );
+
+    try {
+      await _notesRepository.toggleNoteDone(noteId: noteId, isDone: isDone);
+      emit(
+        state.copyWith(
+          actionStatus: NotesActionStatus.success,
+          actionType: NotesActionType.toggleDone,
+          clearActionError: true,
+          clearError: true,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        actionStatus: NotesActionStatus.error,
-        actionType: NotesActionType.toggleDone,
-        actionErrorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          actionStatus: NotesActionStatus.error,
+          actionType: NotesActionType.toggleDone,
+          actionErrorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -187,27 +212,33 @@ class NotesCubit extends Cubit<NotesState> {
   /// Emits [NotesActionStatus.submitting], then [NotesActionStatus.success] on
   /// success, or [NotesActionStatus.error] on failure.
   Future<void> deleteNote(String noteId) async {
-    emit(state.copyWith(
-      actionStatus: NotesActionStatus.submitting,
-      actionType: NotesActionType.delete,
-      clearActionError: true,
-      clearError: true,
-    ));
-
-    try {
-      await _notesRepository.deleteNote(noteId);
-      emit(state.copyWith(
-        actionStatus: NotesActionStatus.success,
+    emit(
+      state.copyWith(
+        actionStatus: NotesActionStatus.submitting,
         actionType: NotesActionType.delete,
         clearActionError: true,
         clearError: true,
-      ));
+      ),
+    );
+
+    try {
+      await _notesRepository.deleteNote(noteId);
+      emit(
+        state.copyWith(
+          actionStatus: NotesActionStatus.success,
+          actionType: NotesActionType.delete,
+          clearActionError: true,
+          clearError: true,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        actionStatus: NotesActionStatus.error,
-        actionType: NotesActionType.delete,
-        actionErrorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          actionStatus: NotesActionStatus.error,
+          actionType: NotesActionType.delete,
+          actionErrorMessage: e.toString(),
+        ),
+      );
     }
   }
 
