@@ -41,6 +41,9 @@ dependencies:
   cloud_firestore: ^6.9.0
   firebase_auth: ^6.6.1
   flutter_bloc: ^9.1.0
+  intl: ^0.20.3
+  flutter_markdown_plus: ^1.0.12
+  percent_indicator: ^4.2.5
 
 dev_dependencies:
   flutter_test:
