@@ -21,6 +21,8 @@ class AppBottomSheet extends StatelessWidget {
   final VoidCallback? onDone;
   final String cancelText;
   final String doneText;
+  final bool isLoading;
+  final bool showDoneButton;
 
   const AppBottomSheet({
     super.key,
@@ -29,6 +31,8 @@ class AppBottomSheet extends StatelessWidget {
     this.onDone,
     this.cancelText = 'Cancel',
     this.doneText = 'Done',
+    this.isLoading = false,
+    this.showDoneButton = true,
   });
 
   @override
@@ -72,13 +76,16 @@ class AppBottomSheet extends StatelessWidget {
                     onPressed: onCancel ?? () => Navigator.of(context).pop(),
                   ),
                 ),
-                const SizedBox(width: AppDimens.md),
-                Expanded(
-                  child: AppButton.secondary(
-                    text: doneText,
-                    onPressed: onDone,
+                if (showDoneButton) ...[
+                  const SizedBox(width: AppDimens.md),
+                  Expanded(
+                    child: AppButton.secondary(
+                      text: doneText,
+                      onPressed: onDone,
+                      isLoading: isLoading,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -98,6 +105,8 @@ Future<T?> showAppBottomSheet<T>(
   String cancelText = 'Cancel',
   String doneText = 'Done',
   bool isDismissible = true,
+  bool isLoading = false,
+  bool showDoneButton = true,
 }) {
   return showModalBottomSheet<T>(
     context: context,
@@ -114,6 +123,8 @@ Future<T?> showAppBottomSheet<T>(
         onCancel: onCancel,
         cancelText: cancelText,
         doneText: doneText,
+        isLoading: isLoading,
+        showDoneButton: showDoneButton,
       ),
     ),
   );

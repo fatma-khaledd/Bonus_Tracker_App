@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/theme.dart';
 
 /// Standard text form field with rounded borders and floating label.
@@ -18,6 +19,7 @@ class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
   final Widget? suffixIcon;
   final Widget? prefixIcon;
   final int maxLines;
@@ -32,6 +34,7 @@ class AppTextField extends StatelessWidget {
     this.controller,
     this.validator,
     this.keyboardType,
+    this.inputFormatters,
     this.suffixIcon,
     this.prefixIcon,
     this.maxLines = 1,
@@ -46,6 +49,7 @@ class AppTextField extends StatelessWidget {
       obscureText: obscureText,
       validator: validator,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       maxLines: maxLines,
       onChanged: onChanged,
       enabled: enabled,
