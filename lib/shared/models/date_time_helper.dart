@@ -31,4 +31,18 @@ class DateTimeHelper {
   static String? toIso8601(DateTime? dateTime) {
     return dateTime?.toIso8601String();
   }
+
+  /// Formats a timestamp for compact display without exposing raw ISO values.
+  ///
+  /// The numeric order keeps the output predictable for both English and
+  /// Arabic layouts while still allowing the surrounding UI to choose its
+  /// own text direction.
+  static String formatDateTime(DateTime dateTime) {
+    final local = dateTime.toLocal();
+    final day = local.day.toString().padLeft(2, '0');
+    final month = local.month.toString().padLeft(2, '0');
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '$day/$month/${local.year} • $hour:$minute';
+  }
 }
