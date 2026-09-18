@@ -14,8 +14,14 @@ class HistoryLoading extends HistoryState {
 
 class HistorySuccess extends HistoryState {
   final List<MohsenEntryModel> entries;
+  final bool isProcessing;
+  final String? actionError;
 
-  const HistorySuccess(this.entries);
+  HistorySuccess(
+    List<MohsenEntryModel> entries, {
+    this.isProcessing = false,
+    this.actionError,
+  }) : entries = List.unmodifiable(entries);
 
   num get total {
     return entries.fold(0, (total, entry) => total + entry.value);
