@@ -15,4 +15,16 @@ abstract class MohsensRepository {
     String? notificationTitle,
     String? notificationMessage,
   });
+
+  Future<void> updateMohsenEntry({
+    required String committeeId,
+    required String memberId,
+    required MohsenEntryModel entry,
+  });
+
+  Future<void> deleteMohsenEntry({
+    required String committeeId,
+    required String memberId,
+    required String entryId,
+  });
 }
