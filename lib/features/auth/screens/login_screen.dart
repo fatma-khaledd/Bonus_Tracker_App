@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
-
 import '../../../core/theme/theme.dart';
+import '../../../shared/repositories/authentication/firebase_authentication.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,15 +11,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  Future<String?>? onLogin(LoginData data) {
-    // FirebaseAuth.instance
-    return null; //return null mean logged in succesfully
-  }
-
-  Future<String?>? onRecoverPassword(String email) {
-    // send reset email
-    return null;
-  }
 
   LoginTheme buildTheme() {
     return LoginTheme(
@@ -57,8 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
         FlutterLogin(
           title: 'LOGIN',
           theme: buildTheme(),
-          onLogin: onLogin,
-          onRecoverPassword: onRecoverPassword,
+          onLogin: FirebaseAuthentication.onLogin,
+          onRecoverPassword: FirebaseAuthentication.onRecover,
           onSubmitAnimationCompleted: () {
             //will handeled with Navigation
           },
