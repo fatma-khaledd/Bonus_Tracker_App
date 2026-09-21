@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
-import 'app_button.dart';
 
 /// Card item for Mohsen and Warning history log.
 /// Displays value number, date, activity description, and an optional edit action.
@@ -14,10 +13,11 @@ import 'app_button.dart';
 /// )
 /// ```
 class HistoryEntryCard extends StatelessWidget {
-  final int value;
+  final num value;
   final String description;
   final String date;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const HistoryEntryCard({
     super.key,
@@ -25,6 +25,7 @@ class HistoryEntryCard extends StatelessWidget {
     required this.description,
     required this.date,
     this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -43,7 +44,7 @@ class HistoryEntryCard extends StatelessWidget {
           Column(
             children: [
               Text(
-                value.toString(),
+                _formatNumber(value),
                 style: AppTextStyles.statNumber(fontSize: 28),
               ),
               Text(date, style: AppTextStyles.bodySmall),
@@ -59,18 +60,53 @@ class HistoryEntryCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppDimens.sm),
-          if (onEdit != null)
-            SizedBox(
-              height: AppDimens.buttonHeightSm,
-              child: AppButton(
-                text: 'Edit',
-                onPressed: onEdit,
-                style: AppButtonStyle.secondary,
-                height: AppDimens.buttonHeightSm,
-              ),
+          if (onEdit != null || onDelete != null)
+            PopupMenuButton<_HistoryAction>(
+              tooltip: 'Entry actions',
+              icon: const Icon(Icons.more_vert),
+              onSelected: (action) {
+                switch (action) {
+                  case _HistoryAction.edit:
+                    onEdit?.call();
+                  case _HistoryAction.delete:
+                    onDelete?.call();
+                }
+              },
+              itemBuilder: (context) => [
+                if (onEdit != null)
+                  const PopupMenuItem(
+                    value: _HistoryAction.edit,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.edit_outlined),
+                      title: Text('Edit'),
+                    ),
+                  ),
+                if (onDelete != null)
+                  const PopupMenuItem(
+                    value: _HistoryAction.delete,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        Icons.delete_outline,
+                        color: AppColors.error,
+                      ),
+                      title: Text(
+                        'Delete',
+                        style: TextStyle(color: AppColors.error),
+                      ),
+                    ),
+                  ),
+              ],
             ),
         ],
       ),
     );
   }
+
+  String _formatNumber(num number) {
+    return number % 1 == 0 ? number.toInt().toString() : number.toString();
+  }
 }
+
+enum _HistoryAction { edit, delete }
