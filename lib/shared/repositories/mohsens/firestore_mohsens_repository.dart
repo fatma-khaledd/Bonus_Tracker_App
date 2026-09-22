@@ -59,6 +59,12 @@ class FirestoreMohsensRepository implements MohsensRepository {
         ? entry.title.trim()
         : entry.reason.trim();
 
+    final isRemoval = entry.value < 0;
+    final defaultTitle = isRemoval
+        ? (isMohsen ? 'Mohsen Removed' : 'Warning Removed')
+        : (isMohsen ? 'New Mohsen' : 'New Warning');
+    final actionVerb = isRemoval ? 'removed' : 'added';
+
     final notification = NotificationModel(
       id: notifRef.id,
       actorId: entry.addedBy,
@@ -82,10 +88,13 @@ class FirestoreMohsensRepository implements MohsensRepository {
           (memberSnap.data()?['stats'] as Map<String, dynamic>?) ?? {};
       final currentValue = (currentStats[statField] ?? 0) as num;
 
+      final updatedTotal = currentValue + entry.value;
+      final safeTotal = updatedTotal < 0 ? 0 : updatedTotal;
+
       transaction.set(entryRef, entry.toMap());
 
       transaction.update(memberRef, {
-        'stats.$statField': currentValue + entry.value,
+        'stats.$statField': safeTotal,
         'stats.lastUpdatedAt': FieldValue.serverTimestamp(),
       });
 
@@ -187,3 +196,4 @@ class FirestoreMohsensRepository implements MohsensRepository {
     return type == MohsenType.mohsen ? 'mohsensCount' : 'warningsCount';
   }
 }
+

@@ -132,15 +132,26 @@ class MemberProfileCubit extends Cubit<MemberProfileState> {
 
       final mohsensRepo = _mohsensRepository;
       final membersRepo = _membersRepository;
+      final actionWord = value < 0 ? 'removed' : 'added';
+      final formattedVal = value > 0 ? '+$value' : '$value';
+
       if (mohsensRepo == null || membersRepo == null) {
         final currentMember = state.member;
+        final newMohsens = isMohsen
+            ? (currentMember != null &&
+                    currentMember.stats.mohsensCount + value < 0
+                ? 0
+                : (currentMember?.stats.mohsensCount ?? 0) + value)
+            : (currentMember?.stats.mohsensCount ?? 0);
+        final newWarnings = !isMohsen
+            ? (currentMember != null &&
+                    currentMember.stats.warningsCount + value < 0
+                ? 0
+                : (currentMember?.stats.warningsCount ?? 0) + value)
+            : (currentMember?.stats.warningsCount ?? 0);
         final updatedStats = currentMember?.stats.copyWith(
-          mohsensCount: isMohsen
-              ? (currentMember.stats.mohsensCount + value)
-              : currentMember.stats.mohsensCount,
-          warningsCount: !isMohsen
-              ? (currentMember.stats.warningsCount + value)
-              : currentMember.stats.warningsCount,
+          mohsensCount: newMohsens,
+          warningsCount: newWarnings,
           lastUpdatedAt: DateTime.now(),
         );
         final updatedMember = currentMember?.copyWith(stats: updatedStats);
@@ -148,7 +159,7 @@ class MemberProfileCubit extends Cubit<MemberProfileState> {
           status: MemberProfileStatus.success,
           member: updatedMember,
           actionSuccessMessage:
-              '${isMohsen ? "Mohsen" : "Warning"} "$title" (+$value) added',
+              '${isMohsen ? "Mohsen" : "Warning"} "$title" ($formattedVal) $actionWord',
         ));
         return true;
       }
@@ -180,10 +191,6 @@ class MemberProfileCubit extends Cubit<MemberProfileState> {
         entry: entry,
         actorName: effectiveActorName,
         actorRole: effectiveActorRole,
-        notificationTitle: title.isNotEmpty
-            ? title
-            : (isMohsen ? 'New Mohsen' : 'New Warning'),
-        notificationMessage: reason.isNotEmpty ? reason : null,
       );
 
       // Re-fetch member from Firestore to get updated count
@@ -198,13 +205,19 @@ class MemberProfileCubit extends Cubit<MemberProfileState> {
       // Fallback for local update if document is not in Firestore yet
       if (updatedMember == null && state.member != null) {
         final currentMember = state.member!;
+        final newMohsens = isMohsen
+            ? (currentMember.stats.mohsensCount + value < 0
+                ? 0
+                : currentMember.stats.mohsensCount + value)
+            : currentMember.stats.mohsensCount;
+        final newWarnings = !isMohsen
+            ? (currentMember.stats.warningsCount + value < 0
+                ? 0
+                : currentMember.stats.warningsCount + value)
+            : currentMember.stats.warningsCount;
         final updatedStats = currentMember.stats.copyWith(
-          mohsensCount: isMohsen
-              ? (currentMember.stats.mohsensCount + value)
-              : currentMember.stats.mohsensCount,
-          warningsCount: !isMohsen
-              ? (currentMember.stats.warningsCount + value)
-              : currentMember.stats.warningsCount,
+          mohsensCount: newMohsens,
+          warningsCount: newWarnings,
           lastUpdatedAt: DateTime.now(),
         );
         updatedMember = currentMember.copyWith(stats: updatedStats);
@@ -214,13 +227,228 @@ class MemberProfileCubit extends Cubit<MemberProfileState> {
         status: MemberProfileStatus.success,
         member: updatedMember ?? state.member,
         actionSuccessMessage:
-            '${isMohsen ? "Mohsen" : "Warning"} "$title" (+$value) added successfully',
+            '${isMohsen ? "Mohsen" : "Warning"} "$title" ($formattedVal) $actionWord successfully',
+      ));
+      return true;
+    } catch (e) {
+      final actionLabel = value < 0 ? 'remove' : 'add';
+      emit(state.copyWith(
+        status: MemberProfileStatus.failure,
+        errorMessage: 'Failed to $actionLabel ${isMohsen ? "Mohsen" : "Warning"}: ${e.toString()}',
+      ));
+      return false;
+    }
+  }
+
+  // Updates an existing Mohsen or Warning entry
+  Future<bool> updateMohsenOrWarning({
+    required String committeeId,
+    required String memberId,
+    required MohsenEntryModel oldEntry,
+    required MohsenEntryModel newEntry,
+    String? actorName,
+    String? actorRole,
+  }) async {
+    try {
+      emit(state.copyWith(status: MemberProfileStatus.submittingEntry));
+
+      final mohsensRepo = _mohsensRepository;
+      final membersRepo = _membersRepository;
+      final isMohsen = newEntry.type == MohsenType.mohsen;
+      final delta = newEntry.value - oldEntry.value;
+
+      if (mohsensRepo == null || membersRepo == null) {
+        final currentMember = state.member;
+        final newMohsens = isMohsen
+            ? ((currentMember?.stats.mohsensCount ?? 0) + delta < 0
+                ? 0
+                : (currentMember?.stats.mohsensCount ?? 0) + delta)
+            : (currentMember?.stats.mohsensCount ?? 0);
+        final newWarnings = !isMohsen
+            ? ((currentMember?.stats.warningsCount ?? 0) + delta < 0
+                ? 0
+                : (currentMember?.stats.warningsCount ?? 0) + delta)
+            : (currentMember?.stats.warningsCount ?? 0);
+        final updatedStats = currentMember?.stats.copyWith(
+          mohsensCount: newMohsens.toInt(),
+          warningsCount: newWarnings.toInt(),
+          lastUpdatedAt: DateTime.now(),
+        );
+        final updatedMember = currentMember?.copyWith(stats: updatedStats);
+        emit(state.copyWith(
+          status: MemberProfileStatus.success,
+          member: updatedMember,
+          actionSuccessMessage:
+              '${isMohsen ? "Mohsen" : "Warning"} updated successfully',
+        ));
+        return true;
+      }
+
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final effectiveActorName = actorName ??
+          (currentUser?.displayName?.isNotEmpty == true
+              ? currentUser!.displayName!
+              : 'HR');
+      final effectiveActorRole = actorRole ?? 'hr';
+
+      await mohsensRepo.updateMohsenEntry(
+        committeeId: committeeId,
+        memberId: memberId,
+        oldEntry: oldEntry,
+        newEntry: newEntry,
+        actorName: effectiveActorName,
+        actorRole: effectiveActorRole,
+      );
+
+      // Re-fetch member from Firestore
+      MemberModel? updatedMember;
+      try {
+        updatedMember = await membersRepo.getMember(
+          committeeId: committeeId,
+          uid: memberId,
+        );
+      } catch (_) {}
+
+      if (updatedMember == null && state.member != null) {
+        final currentMember = state.member!;
+        final newMohsens = isMohsen
+            ? (currentMember.stats.mohsensCount + delta < 0
+                ? 0
+                : currentMember.stats.mohsensCount + delta)
+            : currentMember.stats.mohsensCount;
+        final newWarnings = !isMohsen
+            ? (currentMember.stats.warningsCount + delta < 0
+                ? 0
+                : currentMember.stats.warningsCount + delta)
+            : currentMember.stats.warningsCount;
+        final updatedStats = currentMember.stats.copyWith(
+          mohsensCount: newMohsens.toInt(),
+          warningsCount: newWarnings.toInt(),
+          lastUpdatedAt: DateTime.now(),
+        );
+        updatedMember = currentMember.copyWith(stats: updatedStats);
+      }
+
+      emit(state.copyWith(
+        status: MemberProfileStatus.success,
+        member: updatedMember ?? state.member,
+        actionSuccessMessage:
+            '${isMohsen ? "Mohsen" : "Warning"} updated successfully',
       ));
       return true;
     } catch (e) {
       emit(state.copyWith(
         status: MemberProfileStatus.failure,
-        errorMessage: 'Failed to add ${isMohsen ? "Mohsen" : "Warning"}: ${e.toString()}',
+        errorMessage: 'Failed to update entry: ${e.toString()}',
+      ));
+      return false;
+    }
+  }
+
+  // Deletes a Mohsen or Warning entry
+  Future<bool> deleteMohsenOrWarning({
+    required String committeeId,
+    required String memberId,
+    required MohsenEntryModel entry,
+    String? actorName,
+    String? actorRole,
+  }) async {
+    try {
+      emit(state.copyWith(status: MemberProfileStatus.submittingEntry));
+
+      final mohsensRepo = _mohsensRepository;
+      final membersRepo = _membersRepository;
+      final isMohsen = entry.type == MohsenType.mohsen;
+
+      if (mohsensRepo == null || membersRepo == null) {
+        final currentMember = state.member;
+        final currentCount = isMohsen
+            ? (currentMember?.stats.mohsensCount ?? 0)
+            : (currentMember?.stats.warningsCount ?? 0);
+        if (currentCount - entry.value < 0) {
+          emit(state.copyWith(
+            status: MemberProfileStatus.failure,
+            errorMessage:
+                'Cannot delete entry because it would make the total negative.',
+          ));
+          return false;
+        }
+        final newMohsens = isMohsen
+            ? (currentCount - entry.value)
+            : (currentMember?.stats.mohsensCount ?? 0);
+        final newWarnings = !isMohsen
+            ? (currentCount - entry.value)
+            : (currentMember?.stats.warningsCount ?? 0);
+        final updatedStats = currentMember?.stats.copyWith(
+          mohsensCount: newMohsens.toInt(),
+          warningsCount: newWarnings.toInt(),
+          lastUpdatedAt: DateTime.now(),
+        );
+        final updatedMember = currentMember?.copyWith(stats: updatedStats);
+        emit(state.copyWith(
+          status: MemberProfileStatus.success,
+          member: updatedMember,
+          actionSuccessMessage:
+              '${isMohsen ? "Mohsen" : "Warning"} deleted successfully',
+        ));
+        return true;
+      }
+
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final effectiveActorName = actorName ??
+          (currentUser?.displayName?.isNotEmpty == true
+              ? currentUser!.displayName!
+              : 'HR');
+      final effectiveActorRole = actorRole ?? 'hr';
+
+      await mohsensRepo.deleteMohsenEntry(
+        committeeId: committeeId,
+        memberId: memberId,
+        entry: entry,
+        actorName: effectiveActorName,
+        actorRole: effectiveActorRole,
+      );
+
+      // Re-fetch member from Firestore
+      MemberModel? updatedMember;
+      try {
+        updatedMember = await membersRepo.getMember(
+          committeeId: committeeId,
+          uid: memberId,
+        );
+      } catch (_) {}
+
+      if (updatedMember == null && state.member != null) {
+        final currentMember = state.member!;
+        final newMohsens = isMohsen
+            ? (currentMember.stats.mohsensCount - entry.value < 0
+                ? 0
+                : currentMember.stats.mohsensCount - entry.value)
+            : currentMember.stats.mohsensCount;
+        final newWarnings = !isMohsen
+            ? (currentMember.stats.warningsCount - entry.value < 0
+                ? 0
+                : currentMember.stats.warningsCount - entry.value)
+            : currentMember.stats.warningsCount;
+        final updatedStats = currentMember.stats.copyWith(
+          mohsensCount: newMohsens.toInt(),
+          warningsCount: newWarnings.toInt(),
+          lastUpdatedAt: DateTime.now(),
+        );
+        updatedMember = currentMember.copyWith(stats: updatedStats);
+      }
+
+      emit(state.copyWith(
+        status: MemberProfileStatus.success,
+        member: updatedMember ?? state.member,
+        actionSuccessMessage:
+            '${isMohsen ? "Mohsen" : "Warning"} deleted successfully',
+      ));
+      return true;
+    } catch (e) {
+      emit(state.copyWith(
+        status: MemberProfileStatus.failure,
+        errorMessage: 'Failed to delete entry: ${e.toString()}',
       ));
       return false;
     }

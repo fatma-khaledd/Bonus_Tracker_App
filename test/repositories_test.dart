@@ -50,6 +50,18 @@ class MockMohsensRepository implements MohsensRepository {
   }
 
   @override
+  Stream<List<MohsenEntryModel>> streamMohsensHistory({
+    required String committeeId,
+    required String uid,
+  }) {
+    return Stream.value(
+      history
+          .where((e) => e.committeeId == committeeId && e.memberId == uid)
+          .toList(),
+    );
+  }
+
+  @override
   Future<void> addMohsenEntry({
     required String committeeId,
     required String memberId,

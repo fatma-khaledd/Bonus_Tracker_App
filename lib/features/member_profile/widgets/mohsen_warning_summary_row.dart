@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/theme.dart';
 import '../../../core/widgets/stat_box.dart';
 import 'add_mohsen_dialog.dart';
+import 'mohsen_history_bottom_sheet.dart';
 
-// Displays summary cards for Mohsens and Warnings counts.
-// Tapping a card opens the add dialog.
+/// Displays summary cards for Mohsens and Warnings counts.
+/// Tapping a card opens the history bottom sheet with real-time Firebase sync,
+/// edit and delete actions, and top-right add button.
 class MohsenWarningSummaryRow extends StatelessWidget {
   final int mohsensCount;
   final int warningsCount;
+  final String? committeeId;
+  final String? memberId;
   final void Function(AddMohsenResult result)? onMohsenAdded;
   final void Function(AddMohsenResult result)? onWarningAdded;
 
@@ -15,22 +19,30 @@ class MohsenWarningSummaryRow extends StatelessWidget {
     super.key,
     required this.mohsensCount,
     required this.warningsCount,
+    this.committeeId,
+    this.memberId,
     this.onMohsenAdded,
     this.onWarningAdded,
   });
 
-  Future<void> _openAddMohsen(BuildContext context) async {
-    final result = await AddMohsenDialog.show(context, isMohsen: true);
-    if (result != null && context.mounted) {
-      onMohsenAdded?.call(result);
-    }
+  void _openMohsensHistory(BuildContext context) {
+    MohsenHistoryBottomSheet.show(
+      context,
+      isMohsen: true,
+      committeeId: committeeId ?? 'preview_committee',
+      memberId: memberId ?? 'preview_member',
+      initialTotal: mohsensCount,
+    );
   }
 
-  Future<void> _openAddWarning(BuildContext context) async {
-    final result = await AddMohsenDialog.show(context, isMohsen: false);
-    if (result != null && context.mounted) {
-      onWarningAdded?.call(result);
-    }
+  void _openWarningsHistory(BuildContext context) {
+    MohsenHistoryBottomSheet.show(
+      context,
+      isMohsen: false,
+      committeeId: committeeId ?? 'preview_committee',
+      memberId: memberId ?? 'preview_member',
+      initialTotal: warningsCount,
+    );
   }
 
   @override
@@ -40,7 +52,7 @@ class MohsenWarningSummaryRow extends StatelessWidget {
         // Mohsens Box
         Expanded(
           child: GestureDetector(
-            onTap: () => _openAddMohsen(context),
+            onTap: () => _openMohsensHistory(context),
             child: StatBox(
               label: 'Mohsens',
               value: mohsensCount.toString(),
@@ -54,7 +66,7 @@ class MohsenWarningSummaryRow extends StatelessWidget {
         // Warnings Box
         Expanded(
           child: GestureDetector(
-            onTap: () => _openAddWarning(context),
+            onTap: () => _openWarningsHistory(context),
             child: StatBox(
               label: 'Warnings',
               value: warningsCount.toString(),

@@ -6,6 +6,11 @@ abstract class MohsensRepository {
     required String uid,
   });
 
+  Stream<List<MohsenEntryModel>> streamMohsensHistory({
+    required String committeeId,
+    required String uid,
+  });
+
   Future<void> addMohsenEntry({
     required String committeeId,
     required String memberId,
@@ -17,14 +22,15 @@ abstract class MohsensRepository {
   });
 
   Future<void> updateMohsenEntry({
-    required String committeeId,
-    required String memberId,
-    required MohsenEntryModel entry,
-  });
+  required String committeeId,
+  required String memberId,
+  required MohsenEntryModel entry,
+});
 
-  Future<void> deleteMohsenEntry({
-    required String committeeId,
-    required String memberId,
-    required String entryId,
-  });
+Future<void> deleteMohsenEntry({
+  required String committeeId,
+  required String memberId,
+  required String entryId,
+});
 }
+

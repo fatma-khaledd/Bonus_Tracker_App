@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/theme.dart';
 import '../../../core/widgets/stepper_input.dart';
+import '../../../shared/models/models.dart';
 
 // Result returned when a Mohsen or Warning is submitted
 class AddMohsenResult {
@@ -17,28 +18,40 @@ class AddMohsenResult {
   });
 }
 
-// Dialog for adding Mohsens or Warnings
+// Dialog for adding or editing Mohsens or Warnings
 class AddMohsenDialog extends StatefulWidget {
   final bool isMohsen;
+  final int currentTotal;
+  final MohsenEntryModel? entry;
   final String? initialTitle;
   final int? initialValue;
   final String? initialReason;
+  final String? submitButtonLabel;
+  final String? customTitle;
 
   const AddMohsenDialog({
     super.key,
     required this.isMohsen,
+    this.currentTotal = 0,
+    this.entry,
     this.initialTitle,
     this.initialValue,
     this.initialReason,
+    this.submitButtonLabel,
+    this.customTitle,
   });
 
   /// Shows the dialog and returns [AddMohsenResult] on success, or null on cancel.
   static Future<AddMohsenResult?> show(
     BuildContext context, {
     required bool isMohsen,
+    int currentTotal = 0,
+    MohsenEntryModel? entry,
     String? initialTitle,
     int? initialValue,
     String? initialReason,
+    String? submitButtonLabel,
+    String? customTitle,
   }) {
     return showDialog<AddMohsenResult>(
       context: context,
@@ -46,9 +59,13 @@ class AddMohsenDialog extends StatefulWidget {
       barrierColor: Colors.black54,
       builder: (_) => AddMohsenDialog(
         isMohsen: isMohsen,
-        initialTitle: initialTitle,
-        initialValue: initialValue,
-        initialReason: initialReason,
+        currentTotal: currentTotal,
+        entry: entry,
+        initialTitle: initialTitle ?? entry?.title,
+        initialValue: initialValue ?? entry?.value.toInt(),
+        initialReason: initialReason ?? entry?.reason,
+        submitButtonLabel: submitButtonLabel,
+        customTitle: customTitle,
       ),
     );
   }
@@ -84,10 +101,24 @@ class _AddMohsenDialogState extends State<AddMohsenDialog> {
     super.dispose();
   }
 
-  String get _dialogTitle => widget.isMohsen ? 'Add Mohsen' : 'Add Warning';
+  String get _dialogTitle =>
+      widget.customTitle ?? (widget.isMohsen ? 'Mohsen' : 'Warning');
   String get _titleHint =>
       widget.isMohsen ? 'Enter mohsens title' : 'Enter warning title';
-  String get _addButtonLabel => 'Done';
+
+  String get _addButtonLabel => widget.submitButtonLabel ?? 'Done';
+
+  int get _minAllowed {
+    final isEdit = widget.entry != null || widget.initialValue != null;
+    final oldValue = widget.entry?.value.toInt() ?? widget.initialValue ?? 0;
+    final baseTotal =
+        isEdit ? (widget.currentTotal - oldValue) : widget.currentTotal;
+    if (baseTotal > 0) {
+      final calculatedMin = -baseTotal;
+      return calculatedMin < -20 ? -20 : calculatedMin;
+    }
+    return 1;
+  }
 
   void _submit() {
     final title = _titleController.text.trim();
@@ -189,8 +220,10 @@ class _AddMohsenDialogState extends State<AddMohsenDialog> {
                     children: [
                       StepperInput(
                         value: _value,
-                        min: 1,
+                        min: _minAllowed,
                         max: 20,
+                        skipZero: true,
+                        formatValue: (val) => val > 0 ? '+$val' : '$val',
                         onChanged: (val) => setState(() => _value = val),
                       ),
                     ],

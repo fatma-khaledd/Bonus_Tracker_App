@@ -180,6 +180,8 @@ class _MemberProfileView extends StatelessWidget {
 
                   //2. Mohsens / Warnings Summary Boxes
                   MohsenWarningSummaryRow(
+                    committeeId: committeeId,
+                    memberId: memberId,
                     mohsensCount: state.mohsensCount,
                     warningsCount: state.warningsCount,
                     onMohsenAdded: (result) => _onMohsenAdded(context, result),
