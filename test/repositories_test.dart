@@ -36,6 +36,8 @@ class MockMembersRepository implements MembersRepository {
 class MockMohsensRepository implements MohsensRepository {
   final List<MohsenEntryModel> history = [];
   bool addMohsenCalled = false;
+  bool updateMohsenCalled = false;
+  bool deleteMohsenCalled = false;
 
   @override
   Future<List<MohsenEntryModel>> getMohsensHistory({
@@ -59,6 +61,27 @@ class MockMohsensRepository implements MohsensRepository {
   }) async {
     addMohsenCalled = true;
     history.add(entry);
+  }
+
+  @override
+  Future<void> updateMohsenEntry({
+    required String committeeId,
+    required String memberId,
+    required MohsenEntryModel entry,
+  }) async {
+    updateMohsenCalled = true;
+    final index = history.indexWhere((item) => item.id == entry.id);
+    if (index != -1) history[index] = entry;
+  }
+
+  @override
+  Future<void> deleteMohsenEntry({
+    required String committeeId,
+    required String memberId,
+    required String entryId,
+  }) async {
+    deleteMohsenCalled = true;
+    history.removeWhere((entry) => entry.id == entryId);
   }
 }
 
@@ -180,6 +203,23 @@ void main() {
       expect(history.length, 1);
       expect(history.first.title, 'Outstanding performance');
       expect(history.first.reason, 'Excellent work');
+
+      final updatedEntry = entry.copyWith(value: 7, reason: 'Outstanding work');
+      await repo.updateMohsenEntry(
+        committeeId: 'c1',
+        memberId: 'u1',
+        entry: updatedEntry,
+      );
+      expect(repo.updateMohsenCalled, isTrue);
+      expect(repo.history.single.value, 7);
+
+      await repo.deleteMohsenEntry(
+        committeeId: 'c1',
+        memberId: 'u1',
+        entryId: entry.id,
+      );
+      expect(repo.deleteMohsenCalled, isTrue);
+      expect(repo.history, isEmpty);
     });
 
     test('MeetingsRepository mock implementation fulfills contract', () async {

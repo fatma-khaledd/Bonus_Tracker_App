@@ -74,10 +74,12 @@ class FirestoreNotesRepository implements NotesRepository {
 
   @override
   Future<void> updateNote(NoteModel note) async {
-    final data = note.toMap();
-    data['updatedAt'] = FieldValue.serverTimestamp();
-
-    await _firestore.doc(FirestorePaths.note(note.id)).update(data);
+    await _firestore.doc(FirestorePaths.note(note.id)).update({
+      'title': note.title,
+      'content': note.content,
+      'isDone': note.isDone,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   @override
