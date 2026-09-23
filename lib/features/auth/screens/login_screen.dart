@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onRecoverPassword: FirebaseAuthentication.onRecover,
           onSubmitAnimationCompleted: () {
             //will handeled with Navigation
-            Navigator.pushReplacement(
+            /*Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => const MemberProfileScreen(
@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   memberId: 'test_uid_2',
                 ),
               ),
-            );
+            );*/
           },
         ),
         //use stack so i can add the Penguin and the Crescent moon , osc logo and so on...

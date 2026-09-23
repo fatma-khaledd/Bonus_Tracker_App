@@ -284,20 +284,12 @@ class MemberProfileCubit extends Cubit<MemberProfileState> {
         return true;
       }
 
-      final currentUser = FirebaseAuth.instance.currentUser;
-      final effectiveActorName = actorName ??
-          (currentUser?.displayName?.isNotEmpty == true
-              ? currentUser!.displayName!
-              : 'HR');
-      final effectiveActorRole = actorRole ?? 'hr';
+      // actor logic removed because repository update does not take actor parameters
 
       await mohsensRepo.updateMohsenEntry(
         committeeId: committeeId,
         memberId: memberId,
-        oldEntry: oldEntry,
-        newEntry: newEntry,
-        actorName: effectiveActorName,
-        actorRole: effectiveActorRole,
+        entry: newEntry,
       );
 
       // Re-fetch member from Firestore
@@ -394,19 +386,12 @@ class MemberProfileCubit extends Cubit<MemberProfileState> {
         return true;
       }
 
-      final currentUser = FirebaseAuth.instance.currentUser;
-      final effectiveActorName = actorName ??
-          (currentUser?.displayName?.isNotEmpty == true
-              ? currentUser!.displayName!
-              : 'HR');
-      final effectiveActorRole = actorRole ?? 'hr';
+      // actor logic removed because repository update does not take actor parameters
 
       await mohsensRepo.deleteMohsenEntry(
         committeeId: committeeId,
         memberId: memberId,
-        entry: entry,
-        actorName: effectiveActorName,
-        actorRole: effectiveActorRole,
+        entryId: entry.id,
       );
 
       // Re-fetch member from Firestore

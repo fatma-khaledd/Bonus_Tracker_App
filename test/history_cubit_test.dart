@@ -31,6 +31,21 @@ class FakeMohsensRepository implements MohsensRepository {
   }
 
   @override
+  Stream<List<MohsenEntryModel>> streamMohsensHistory({
+    required String committeeId,
+    required String uid,
+  }) {
+    return Stream.value(
+      entries
+          .where(
+            (entry) =>
+                entry.committeeId == committeeId && entry.memberId == uid,
+          )
+          .toList(),
+    );
+  }
+
+  @override
   Future<void> addMohsenEntry({
     required String committeeId,
     required String memberId,

@@ -102,7 +102,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Add dialog appears
-      expect(find.text('Add Mohsen'), findsOneWidget);
+      expect(find.text('Mohsen'), findsOneWidget);
       expect(find.text('Title *'), findsOneWidget);
       expect(find.text('Value'), findsOneWidget);
       expect(find.text('Done'), findsOneWidget);

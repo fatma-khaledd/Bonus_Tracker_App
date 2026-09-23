@@ -73,10 +73,12 @@ class FirestoreMohsensRepository implements MohsensRepository {
       type: isMohsen
           ? NotificationType.mohsenAdded
           : NotificationType.warningAdded,
-      title: notificationTitle ?? (isMohsen ? 'New Mohsen' : 'New Warning'),
+      title: notificationTitle ?? defaultTitle,
       message:
           notificationMessage ??
-          '$actorName added ${isMohsen ? "mohsen" : "warning"}: $entryLabel',
+          (entryLabel.isNotEmpty 
+            ? '$actorName $actionVerb ${isMohsen ? "mohsen" : "warning"}: $entryLabel'
+            : '$actorName $actionVerb ${isMohsen ? "mohsen" : "warning"}'),
       committeeId: committeeId,
       targetUserId: memberId,
       createdAt: DateTime.now(),
@@ -102,6 +104,25 @@ class FirestoreMohsensRepository implements MohsensRepository {
       notifMap['createdAt'] = FieldValue.serverTimestamp();
       transaction.set(notifRef, notifMap);
     });
+  }
+
+  @override
+  Stream<List<MohsenEntryModel>> streamMohsensHistory({
+    required String committeeId,
+    required String uid,
+  }) {
+    return _firestore
+        .collection(FirestorePaths.mohsens(committeeId, uid))
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs
+            .map((doc) => MohsenEntryModel.fromMap(
+                  doc.data(),
+                  id: doc.id,
+                  memberId: uid,
+                  committeeId: committeeId,
+                ))
+            .toList());
   }
 
   @override
