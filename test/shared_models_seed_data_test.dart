@@ -201,16 +201,19 @@ void main() {
       final entry1 = MohsenEntryModel.fromMap(entry1Map, id: 'entry_1');
       expect(entry1.id, 'entry_1');
       expect(entry1.type, MohsenType.mohsen);
+      expect(entry1.title, ''); 
       expect(entry1.value, 1);
       expect(entry1.reason, 'كان نشيط في السيشن التاني');
       expect(entry1.addedBy, 'test_uid_1');
 
       final entry1ToMap = entry1.toMap();
       expect(entry1ToMap['type'], 'mohsen');
+      expect(entry1ToMap['title'], '');
       expect(entry1ToMap['value'], 1);
 
       final entry2Map = {
         'type': 'warning',
+        'title': 'التأخير عن الاجتماع',
         'value': 1,
         'reason': 'اتأخر عن الاجتماع',
         'addedBy': 'test_uid_1',
@@ -221,8 +224,10 @@ void main() {
       final entry2 = MohsenEntryModel.fromMap(entry2Map, id: 'entry_2');
       expect(entry2.id, 'entry_2');
       expect(entry2.type, MohsenType.warning);
+      expect(entry2.title, 'التأخير عن الاجتماع');
       expect(entry2.value, 1);
       expect(entry2.reason, 'اتأخر عن الاجتماع');
+      expect(entry2.toMap()['title'], 'التأخير عن الاجتماع');
     });
 
     test('7. SessionRecordModel - meeting_1', () {

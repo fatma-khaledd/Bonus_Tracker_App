@@ -50,6 +50,18 @@ class MockMohsensRepository implements MohsensRepository {
   }
 
   @override
+  Stream<List<MohsenEntryModel>> streamMohsensHistory({
+    required String committeeId,
+    required String uid,
+  }) {
+    return Stream.value(
+      history
+          .where((e) => e.committeeId == committeeId && e.memberId == uid)
+          .toList(),
+    );
+  }
+
+  @override
   Future<void> addMohsenEntry({
     required String committeeId,
     required String memberId,
@@ -181,6 +193,7 @@ void main() {
         memberId: 'u1',
         committeeId: 'c1',
         type: MohsenType.mohsen,
+        title: 'Outstanding performance',
         value: 5,
         reason: 'Excellent work',
         addedBy: 'admin1',
@@ -200,6 +213,7 @@ void main() {
       final history =
           await repo.getMohsensHistory(committeeId: 'c1', uid: 'u1');
       expect(history.length, 1);
+      expect(history.first.title, 'Outstanding performance');
       expect(history.first.reason, 'Excellent work');
 
       final updatedEntry = entry.copyWith(value: 7, reason: 'Outstanding work');

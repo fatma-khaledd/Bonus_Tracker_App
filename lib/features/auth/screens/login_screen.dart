@@ -1,3 +1,4 @@
+import 'package:bonus_tracker_app/features/member_profile/screens/member_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import '../../../core/theme/theme.dart';
@@ -11,7 +12,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   LoginTheme buildTheme() {
     return LoginTheme(
       errorColor: AppColors.error,
@@ -52,6 +52,15 @@ class _LoginScreenState extends State<LoginScreen> {
           onRecoverPassword: FirebaseAuthentication.onRecover,
           onSubmitAnimationCompleted: () {
             //will handeled with Navigation
+            /*Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MemberProfileScreen(
+                  committeeId: 'committee_test',
+                  memberId: 'test_uid_2',
+                ),
+              ),
+            );*/
           },
         ),
         //use stack so i can add the Penguin and the Crescent moon , osc logo and so on...

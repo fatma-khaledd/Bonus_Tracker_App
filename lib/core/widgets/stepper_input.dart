@@ -17,6 +17,8 @@ class StepperInput extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final int min;
   final int max;
+  final bool skipZero;
+  final String Function(int)? formatValue;
 
   const StepperInput({
     super.key,
@@ -24,29 +26,47 @@ class StepperInput extends StatelessWidget {
     required this.onChanged,
     this.min = 0,
     this.max = 99,
+    this.skipZero = false,
+    this.formatValue,
   });
+
+  int get _nextValue {
+    if (skipZero && value == -1) return 1;
+    return value + 1;
+  }
+
+  int get _prevValue {
+    if (skipZero && value == 1) return -1;
+    return value - 1;
+  }
+
+  bool get _canIncrement => _nextValue <= max;
+  bool get _canDecrement => _prevValue >= min;
 
   @override
   Widget build(BuildContext context) {
+    final displayText =
+        formatValue != null ? formatValue!(value) : value.toString();
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _StepperButton(
           icon: Icons.add,
-          onTap: value < max ? () => onChanged(value + 1) : null,
+          onTap: _canIncrement ? () => onChanged(_nextValue) : null,
         ),
         Container(
           constraints: const BoxConstraints(minWidth: 48),
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: AppDimens.md),
           child: Text(
-            value.toString(),
+            displayText,
             style: AppTextStyles.heading2,
           ),
         ),
         _StepperButton(
           icon: Icons.remove,
-          onTap: value > min ? () => onChanged(value - 1) : null,
+          onTap: _canDecrement ? () => onChanged(_prevValue) : null,
         ),
       ],
     );
