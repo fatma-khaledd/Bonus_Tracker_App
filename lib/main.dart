@@ -1,4 +1,6 @@
+// import 'package:bonus_tracker_app/features/auth/screens/home/home_screen.dart';
 import 'package:bonus_tracker_app/features/auth/screens/home/home_screen.dart';
+import 'package:bonus_tracker_app/features/auth/screens/login_screen.dart';
 import 'package:bonus_tracker_app/firebase_options.dart';
 import 'package:device_preview_plus/device_preview_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -35,7 +37,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
 
-      home: const HomeScreen(),
+      home: const LoginScreen(),
     );
   }
 }

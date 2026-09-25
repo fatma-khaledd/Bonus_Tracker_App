@@ -34,10 +34,9 @@ class AppEventsCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: Color(0xFF8B4513),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.arrow_circle_right_outlined),
               ),
             ],
           ),
@@ -54,6 +53,5 @@ class AppEventsCard extends StatelessWidget {
         ],
       ),
     );
-    ;
   }
 }
