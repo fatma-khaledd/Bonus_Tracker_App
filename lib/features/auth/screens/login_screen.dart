@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'home/home_screen.dart';
 import '../../../core/theme/theme.dart';
 import '../../../shared/repositories/authentication/firebase_authentication.dart';
 
@@ -51,7 +52,11 @@ class _LoginScreenState extends State<LoginScreen> {
           onLogin: FirebaseAuthentication.onLogin,
           onRecoverPassword: FirebaseAuthentication.onRecover,
           onSubmitAnimationCompleted: () {
-            //will handeled with Navigation
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (_) => const HomeScreen(),
+              ),
+            );
           },
         ),
         //use stack so i can add the Penguin and the Crescent moon , osc logo and so on...
